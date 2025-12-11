@@ -2,12 +2,18 @@
 namespace InnoSoft\AuthCore;
 
 use Illuminate\Support\ServiceProvider;
+use InnoSoft\AuthCore\Domain\Users\UserRepository;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\EloquentUserRepository;
+
 class AuthCoreServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
         // merge default settings
         $this->mergeConfigFrom(__DIR__.'/../config/auth-core.php', 'auth-core');
+
+        // Biding interfaces and implementations
+        $this->app->bind(UserRepository::class, EloquentUserRepository::class);
     }
     public function boot(): void
     {
