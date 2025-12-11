@@ -30,6 +30,25 @@ class User
         return $user;
     }
 
+    /**
+     * Reconstitute user from persistence (Hydration).
+     * Used by Repositories mapping Eloquent -> Domain.
+     */
+    public static function fromPersistence(
+        string $id,
+        string $name,
+        string $email,
+        string $passwordHash
+    ): self {
+        // create instance without dispath event
+        return new self(
+            $id,
+            $name,
+            new EmailAddress($email),
+            $passwordHash
+        );
+    }
+
     public function getId(): string
     {
         return $this->id;
