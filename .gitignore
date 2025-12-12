@@ -1,0 +1,91 @@
+# ----------------------------------------------------------------------
+# | Dependencies & packages
+# ----------------------------------------------------------------------
+/vendor
+/node_modules
+/npm-debug.log
+/yarn-error.log
+/yarn.lock
+/package-lock.json
+
+# ----------------------------------------------------------------------
+# | Laravel & Framework Internals
+# ----------------------------------------------------------------------
+# Secutiry
+.env
+.env.backup
+.env.production
+.env.staging
+
+# Automatic file installation
+.phpunit.result.cache
+
+# Docker
+docker-compose.override.yml
+
+# ----------------------------------------------------------------------
+# | Storage & Caché
+# ----------------------------------------------------------------------
+
+
+/storage/*.key
+/storage/app/public/*
+!/storage/app/public/.gitignore
+
+/storage/framework/cache/*
+!/storage/framework/cache/.gitignore
+
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
+
+/storage/framework/testing/*
+!/storage/framework/testing/.gitignore
+
+/storage/framework/views/*
+!/storage/framework/views/.gitignore
+
+/storage/logs/*
+!/storage/logs/.gitignore
+
+# Symlink of public storage
+/public/storage
+
+# ----------------------------------------------------------------------
+# | Assets Compilation  (Vite / Mix)
+# ----------------------------------------------------------------------
+/public/build
+/public/hot
+/public/css
+/public/js
+
+
+# ----------------------------------------------------------------------
+# | Testing & QA
+# ----------------------------------------------------------------------
+/phpunit.xml
+
+.coverage/
+/coverage/
+/coverage-report/
+.php-cs-fixer.cache
+
+# SQlite for testing
+/database/*.sqlite
+/database/*.sqlite-journal
+
+# ----------------------------------------------------------------------
+# | IDEs & SO
+# ----------------------------------------------------------------------
+.idea
+.vscode
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
