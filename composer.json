@@ -25,7 +25,8 @@
   },
   "autoload": {
     "psr-4": {
-      "InnoSoft\\AuthCore\\": "src/"
+      "InnoSoft\\AuthCore\\": "src/",
+      "InnoSoft\\AuthCore\\Database\\Factories\\": "database/factories/"
     }
   },
   "autoload-dev": {
