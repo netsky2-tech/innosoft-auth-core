@@ -7,8 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use InnoSoft\AuthCore\Domain\Auth\Services\PasswordTokenService;
 use InnoSoft\AuthCore\Domain\Auth\Services\TokenIssuer;
 use InnoSoft\AuthCore\Domain\Users\UserRepository;
+use InnoSoft\AuthCore\Infrastructure\Auth\LaravelPasswordTokenService;
 use InnoSoft\AuthCore\Infrastructure\Auth\SanctumTokenIssuer;
 use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\EloquentUserRepository;
 use InnoSoft\AuthCore\UI\Http\Middleware\CheckPermissionMiddleware;
@@ -23,6 +25,7 @@ class AuthCoreServiceProvider extends ServiceProvider
         // Biding interfaces and implementations
         $this->app->bind(UserRepository::class, EloquentUserRepository::class);
         $this->app->bind(TokenIssuer::class, SanctumTokenIssuer::class);
+        $this->app->bind(PasswordTokenService::class, LaravelPasswordTokenService::class);
     }
 
     /**

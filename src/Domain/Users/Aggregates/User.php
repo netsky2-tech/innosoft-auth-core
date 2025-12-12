@@ -13,7 +13,7 @@ class User
         private readonly string       $id,
         private readonly string       $name,
         private readonly EmailAddress $email,
-        private readonly string $passwordHash
+        private string $passwordHash
     ){}
 
     public static function register(
@@ -47,6 +47,11 @@ class User
             new EmailAddress($email),
             $passwordHash
         );
+    }
+
+    public function updatePassword(string $newPasswordHash): void
+    {
+        $this->passwordHash = $newPasswordHash;
     }
 
     public function getId(): string
