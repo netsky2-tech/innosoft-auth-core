@@ -18,8 +18,9 @@ class EloquentUserRepository implements UserRepository
                 'name' => $user->getName(),
                 'email' => $user->getEmail()->getValue(),
                 'password' => $user->getPasswordHash(),
-                'twoFactorSecret' => $user->getTwoFactorSecret(),
-                'twoFactorConfirmed' => $user->getTwoFactorConfirmed(),
+                'two_factor_secret' => $user->getTwoFactorSecret(),
+                'two_factor_confirmed_at' => $user->getTwoFactorConfirmed() ? now() : null,
+                'two_factor_recovery_codes' => $user->getTwoFactorRecoveryCodes()
             ]
         );
     }
@@ -39,7 +40,8 @@ class EloquentUserRepository implements UserRepository
             $eloquentUser->email,
             $eloquentUser->password,
             $eloquentUser->two_factor_secret,
-            $eloquentUser->two_factor_confirmed_at != null
+            $eloquentUser->two_factor_confirmed_at != null,
+            $eloquentUser->two_factor_recovery_codes
         );
     }
 
@@ -58,7 +60,8 @@ class EloquentUserRepository implements UserRepository
             $eloquentUser->email,
             $eloquentUser->password,
             $eloquentUser->two_factor_secret,
-            $eloquentUser->two_factor_confirmed_at != null
+            $eloquentUser->two_factor_confirmed_at != null,
+            $eloquentUser->two_factor_recovery_codes
         );
     }
 }

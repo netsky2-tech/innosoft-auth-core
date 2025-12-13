@@ -41,4 +41,9 @@ class GoogleTwoFactorProvider implements TwoFactorProvider
     {
         return array_map(fn() => \Illuminate\Support\Str::random(10) . '-' . \Illuminate\Support\Str::random(10), range(1, 8));
     }
+
+    public function qrCodeUrl(string $companyName, string $holderEmail, string $secret): string
+    {
+        return $this->engine->getQRCodeUrl($companyName, $holderEmail, $secret);
+    }
 }

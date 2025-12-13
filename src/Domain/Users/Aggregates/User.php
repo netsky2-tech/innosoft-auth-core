@@ -14,8 +14,9 @@ class User
         private readonly string       $name,
         private readonly EmailAddress $email,
         private string $passwordHash,
-        private ?string $twoFactorSecret = null,
-        private ?bool $twoFactorConfirmed = false,
+        private ?string $twoFactorSecret,
+        private ?bool $twoFactorConfirmed,
+        private ?string $twoFactorRecoveryCodes
     ){}
 
     public static function register(
@@ -24,9 +25,10 @@ class User
         EmailAddress $email,
         string $passwordHash,
         ?string $twoFactorSecret = null,
-        ?bool $twoFactorConfirmed = false
+        ?bool $twoFactorConfirmed = false,
+        ?string $twoFactorRecoveryCodes = null
     ): self {
-        $user = new self($id, $name, $email, $passwordHash, $twoFactorSecret, $twoFactorConfirmed);
+        $user = new self($id, $name, $email, $passwordHash, $twoFactorSecret, $twoFactorConfirmed, $twoFactorRecoveryCodes);
 
         // register domain event
         $user->record(new UserRegistered($id, $email->getValue()));
@@ -43,17 +45,19 @@ class User
         string $name,
         string $email,
         string $passwordHash,
-        ?string $twoFactorSecret = null,
-        bool $twoFactorConfirmed = false
+        ?string $twoFactorSecret,
+        bool $twoFactorConfirmed,
+        ?string $twoFactorRecoveryCodes
     ): self {
-        // create instance without dispath event
+        // create instance without dispatch event
         return new self(
             $id,
             $name,
             new EmailAddress($email),
             $passwordHash,
             $twoFactorSecret,
-            $twoFactorConfirmed
+            $twoFactorConfirmed,
+            $twoFactorRecoveryCodes
         );
     }
 
@@ -65,12 +69,22 @@ class User
     public function enableTwoFactor(string $secret): void
     {
         $this->twoFactorSecret = $secret;
-        $this->twoFactorConfirmed = false;
+        $this->twoFactorConfirmed = null;
     }
 
     public function confirmTwoFactor(): void
     {
         $this->twoFactorConfirmed = true;
+    }
+
+    public function setRecoveryCodes(array $recoveryCodes): void
+    {
+        $this->twoFactorRecoveryCodes = json_encode($recoveryCodes);
+    }
+
+    public function getTwoFactorRecoveryCodes(): ?string
+    {
+        return $this->twoFactorRecoveryCodes;
     }
 
     public function hasTwoFactorEnabled(): bool

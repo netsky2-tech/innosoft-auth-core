@@ -5,6 +5,9 @@ namespace InnoSoft\AuthCore\UI\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Validation\ValidationException;
+use InnoSoft\AuthCore\Application\Auth\Commands\Handlers\ConfirmTwoFactorHandler;
+use InnoSoft\AuthCore\Application\Auth\Commands\Handlers\EnableTwoFactorHandler;
 use InnoSoft\AuthCore\Application\Auth\Commands\Handlers\LoginUserHandler;
 use InnoSoft\AuthCore\Application\Auth\Commands\Handlers\RegisterUserHandler;
 use InnoSoft\AuthCore\Application\Auth\Commands\Handlers\RequestPasswordResetHandler;
@@ -106,5 +109,22 @@ class AuthController extends Controller
         } catch (InvalidCredentialsException $e) {
             return response()->json(['message' => 'Invalid code or expired session.'], 401);
         }
+    }
+
+    public function enableTwoFactor(Request $request, EnableTwoFactorHandler $handler): JsonResponse
+    {
+        $data = $handler->handle($request->user()->id);
+        return response()->json($data);
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function confirmTwoFactor(Request $request, ConfirmTwoFactorHandler $handler
+    ): JsonResponse {
+        $request->validate(['code' => 'required|string']);
+
+        $data = $handler->handle($request->user()->id, $request->code);
+        return response()->json($data);
     }
 }
