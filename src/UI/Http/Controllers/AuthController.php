@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Validation\ValidationException;
 use InnoSoft\AuthCore\Application\Auth\Commands\Handlers\ConfirmTwoFactorHandler;
+use InnoSoft\AuthCore\Application\Auth\Commands\Handlers\DisableTwoFactorHandler;
 use InnoSoft\AuthCore\Application\Auth\Commands\Handlers\EnableTwoFactorHandler;
 use InnoSoft\AuthCore\Application\Auth\Commands\Handlers\LoginUserHandler;
 use InnoSoft\AuthCore\Application\Auth\Commands\Handlers\RegisterUserHandler;
@@ -126,5 +127,21 @@ class AuthController extends Controller
 
         $data = $handler->handle($request->user()->id, $request->code);
         return response()->json($data);
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function disableTwoFactor(Request $request, DisableTwoFactorHandler $handler): JsonResponse
+    {
+        $request->validate([
+            'current_password' => 'required|string'
+        ]);
+
+        $handler->handle($request->user()->id, $request->current_password);
+
+        return response()->json([
+            'message' => 'Two factor authentication disabled successfully.'
+        ]);
     }
 }

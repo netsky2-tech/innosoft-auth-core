@@ -71,6 +71,14 @@ class User
         $this->twoFactorSecret = $secret;
         $this->twoFactorConfirmed = null;
     }
+    public function disableTwoFactor(): void
+    {
+        $this->twoFactorSecret = null;
+        $this->twoFactorConfirmed = false;
+        $this->twoFactorRecoveryCodes = null;
+
+        // $this->record(new TwoFactorDisabled($this->id));
+    }
 
     public function confirmTwoFactor(): void
     {

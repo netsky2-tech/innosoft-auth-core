@@ -19,4 +19,5 @@ Route::prefix('api/auth')->group(function () {
 Route::middleware(['api', 'auth:sanctum'])->prefix('api/auth/two-factor')->group(function () {
     Route::post('enable', [AuthController::class, 'enableTwoFactor']);
     Route::post('confirm', [AuthController::class, 'confirmTwoFactor']);
+    Route::delete('/', [AuthController::class, 'disableTwoFactor']);
 });
