@@ -5,18 +5,22 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use InnoSoft\AuthCore\Application\Listeners\LogSecurityEvents;
 use InnoSoft\AuthCore\Domain\Auth\Services\PasswordTokenService;
 use InnoSoft\AuthCore\Domain\Auth\Services\TokenIssuer;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorChallengeService;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorProvider;
+use InnoSoft\AuthCore\Domain\Shared\Services\AuditLogger;
 use InnoSoft\AuthCore\Domain\Users\UserRepository;
 use InnoSoft\AuthCore\Infrastructure\Auth\CacheTwoFactorChallengeService;
 use InnoSoft\AuthCore\Infrastructure\Auth\GoogleTwoFactorProvider;
 use InnoSoft\AuthCore\Infrastructure\Auth\LaravelPasswordTokenService;
 use InnoSoft\AuthCore\Infrastructure\Auth\SanctumTokenIssuer;
 use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\EloquentUserRepository;
+use InnoSoft\AuthCore\Infrastructure\Services\LaravelAuditLogger;
 use InnoSoft\AuthCore\UI\Http\Middleware\CheckPermissionMiddleware;
 
 class AuthCoreServiceProvider extends ServiceProvider
@@ -32,6 +36,9 @@ class AuthCoreServiceProvider extends ServiceProvider
         $this->app->bind(PasswordTokenService::class, LaravelPasswordTokenService::class);
         $this->app->bind(TwoFactorProvider::class, GoogleTwoFactorProvider::class);
         $this->app->bind(TwoFactorChallengeService::class, CacheTwoFactorChallengeService::class);
+        $this->app->bind(AuditLogger::class, LaravelAuditLogger::class);
+
+        Event::subscribe(LogSecurityEvents::class);
     }
 
     /**
