@@ -13,16 +13,22 @@ class User
         private readonly string       $id,
         private readonly string       $name,
         private readonly EmailAddress $email,
-        private string $passwordHash
+        private string $passwordHash,
+        private ?string $twoFactorSecret,
+        private ?bool $twoFactorConfirmed,
+        private ?string $twoFactorRecoveryCodes
     ){}
 
     public static function register(
         string $id,
         string $name,
         EmailAddress $email,
-        string $passwordHash
+        string $passwordHash,
+        ?string $twoFactorSecret = null,
+        ?bool $twoFactorConfirmed = false,
+        ?string $twoFactorRecoveryCodes = null
     ): self {
-        $user = new self($id, $name, $email, $passwordHash);
+        $user = new self($id, $name, $email, $passwordHash, $twoFactorSecret, $twoFactorConfirmed, $twoFactorRecoveryCodes);
 
         // register domain event
         $user->record(new UserRegistered($id, $email->getValue()));
@@ -38,20 +44,60 @@ class User
         string $id,
         string $name,
         string $email,
-        string $passwordHash
+        string $passwordHash,
+        ?string $twoFactorSecret,
+        bool $twoFactorConfirmed,
+        ?string $twoFactorRecoveryCodes
     ): self {
-        // create instance without dispath event
+        // create instance without dispatch event
         return new self(
             $id,
             $name,
             new EmailAddress($email),
-            $passwordHash
+            $passwordHash,
+            $twoFactorSecret,
+            $twoFactorConfirmed,
+            $twoFactorRecoveryCodes
         );
     }
 
     public function updatePassword(string $newPasswordHash): void
     {
         $this->passwordHash = $newPasswordHash;
+    }
+
+    public function enableTwoFactor(string $secret): void
+    {
+        $this->twoFactorSecret = $secret;
+        $this->twoFactorConfirmed = null;
+    }
+    public function disableTwoFactor(): void
+    {
+        $this->twoFactorSecret = null;
+        $this->twoFactorConfirmed = false;
+        $this->twoFactorRecoveryCodes = null;
+
+        // $this->record(new TwoFactorDisabled($this->id));
+    }
+
+    public function confirmTwoFactor(): void
+    {
+        $this->twoFactorConfirmed = true;
+    }
+
+    public function setRecoveryCodes(array $recoveryCodes): void
+    {
+        $this->twoFactorRecoveryCodes = json_encode($recoveryCodes);
+    }
+
+    public function getTwoFactorRecoveryCodes(): ?string
+    {
+        return $this->twoFactorRecoveryCodes;
+    }
+
+    public function hasTwoFactorEnabled(): bool
+    {
+        return !empty($this->twoFactorSecret) && $this->twoFactorConfirmed;
     }
 
     public function getId(): string
@@ -72,6 +118,16 @@ class User
     public function getPasswordHash(): string
     {
         return $this->passwordHash;
+    }
+
+    public function getTwoFactorSecret(): ?string
+    {
+        return $this->twoFactorSecret;
+    }
+
+    public function getTwoFactorConfirmed(): ?bool
+    {
+        return $this->twoFactorConfirmed;
     }
 
 }
