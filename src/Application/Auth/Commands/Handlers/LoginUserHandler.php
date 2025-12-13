@@ -4,6 +4,7 @@ namespace InnoSoft\AuthCore\Application\Auth\Commands\Handlers;
 
 use Illuminate\Support\Facades\Hash;
 use InnoSoft\AuthCore\Application\Auth\Commands\LoginUserCommand;
+use InnoSoft\AuthCore\Domain\Auth\Exceptions\TwoFactorRequiredException;
 use InnoSoft\AuthCore\Domain\Auth\Services\TokenIssuer;
 use InnoSoft\AuthCore\Domain\Users\Exceptions\InvalidCredentialsException;
 use InnoSoft\AuthCore\Domain\Users\UserRepository;
@@ -17,6 +18,7 @@ final class LoginUserHandler
 
     /**
      * @throws InvalidCredentialsException
+     * @throws TwoFactorRequiredException
      */
     public function handle(LoginUserCommand $command): array
     {
@@ -27,6 +29,9 @@ final class LoginUserHandler
             throw new InvalidCredentialsException();
         }
 
+        if($user->hasTwoFactorEnabled()){
+            throw new TwoFactorRequiredException($user->getId());
+        }
         // Generate token
         $token = $this->tokenIssuer->issue($user, $command->deviceName);
 

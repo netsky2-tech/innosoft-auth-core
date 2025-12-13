@@ -13,4 +13,5 @@ Route::prefix('api/auth')->middleware('throttle:auth-core.login')->group(functio
 Route::prefix('api/auth')->group(function () {
     Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('reset-password', [AuthController::class, 'resetPassword']);
+    Route::post('two-factor/verify', [AuthController::class, 'verifyTwoFactor']);
 });

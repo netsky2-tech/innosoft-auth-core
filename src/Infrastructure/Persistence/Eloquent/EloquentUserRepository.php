@@ -18,6 +18,8 @@ class EloquentUserRepository implements UserRepository
                 'name' => $user->getName(),
                 'email' => $user->getEmail()->getValue(),
                 'password' => $user->getPasswordHash(),
+                'twoFactorSecret' => $user->getTwoFactorSecret(),
+                'twoFactorConfirmed' => $user->getTwoFactorConfirmed(),
             ]
         );
     }
@@ -35,7 +37,28 @@ class EloquentUserRepository implements UserRepository
             $eloquentUser->id,
             $eloquentUser->name,
             $eloquentUser->email,
-            $eloquentUser->password
+            $eloquentUser->password,
+            $eloquentUser->two_factor_secret,
+            $eloquentUser->two_factor_confirmed_at != null
+        );
+    }
+
+    public function findById(string $id): ?User
+    {
+        $eloquentUser = EloquentModel::where('id', $id)->first();
+
+        if (!$eloquentUser) {
+            return null;
+        }
+
+        // mapping: Eloquent -> Domain (Reconstitute)
+        return User::fromPersistence(
+            $eloquentUser->id,
+            $eloquentUser->name,
+            $eloquentUser->email,
+            $eloquentUser->password,
+            $eloquentUser->two_factor_secret,
+            $eloquentUser->two_factor_confirmed_at != null
         );
     }
 }
