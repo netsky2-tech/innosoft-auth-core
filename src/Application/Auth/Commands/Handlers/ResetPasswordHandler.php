@@ -3,9 +3,12 @@
 namespace InnoSoft\AuthCore\Application\Auth\Commands\Handlers;
 
 use Exception;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Hashing\Hasher;
 use InnoSoft\AuthCore\Application\Auth\Commands\ResetPasswordCommand;
 use InnoSoft\AuthCore\Domain\Auth\Services\PasswordTokenService;
+use InnoSoft\AuthCore\Domain\Users\Events\PasswordResetCompleted;
+use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnabled;
 use InnoSoft\AuthCore\Domain\Users\UserRepository;
 
 final readonly class ResetPasswordHandler
@@ -13,7 +16,8 @@ final readonly class ResetPasswordHandler
     public function __construct(
         private UserRepository       $userRepository,
         private PasswordTokenService $tokenService,
-        private Hasher $hasher
+        private Hasher $hasher,
+        private Dispatcher $dispatcher,
     ) {}
 
     /**
@@ -40,5 +44,8 @@ final readonly class ResetPasswordHandler
 
         // Invalidate token used
         $this->tokenService->deleteToken($user);
+
+        // Event
+        $this->dispatcher->dispatch(new PasswordResetCompleted($user->getId(), $user->getEmail()));
     }
 }

@@ -2,12 +2,15 @@
 
 namespace InnoSoft\AuthCore\Application\Auth\Commands\Handlers;
 
+use Illuminate\Auth\Events\Login;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use InnoSoft\AuthCore\Application\Auth\Commands\LoginUserCommand;
 use InnoSoft\AuthCore\Domain\Auth\Exceptions\TwoFactorRequiredException;
 use InnoSoft\AuthCore\Domain\Auth\Services\TokenIssuer;
 use InnoSoft\AuthCore\Domain\Users\Exceptions\InvalidCredentialsException;
 use InnoSoft\AuthCore\Domain\Users\UserRepository;
+
 
 final class LoginUserHandler
 {
@@ -32,6 +35,16 @@ final class LoginUserHandler
         if($user->hasTwoFactorEnabled()){
             throw new TwoFactorRequiredException($user->getId());
         }
+
+        $eloquentUser = $this->userRepository->findAuthenticatableById($user->getId());
+        if ($eloquentUser) {
+            Event::dispatch(new Login(
+                'sanctum',
+                $eloquentUser,
+                false
+            ));
+        }
+
         // Generate token
         $token = $this->tokenIssuer->issue($user, $command->deviceName);
 

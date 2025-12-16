@@ -2,6 +2,7 @@
 
 namespace InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent;
 
+use Illuminate\Contracts\Auth\Authenticatable;
 use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
 use InnoSoft\AuthCore\Domain\Users\UserRepository;
 use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User as EloquentModel;
@@ -63,5 +64,9 @@ class EloquentUserRepository implements UserRepository
             $eloquentUser->two_factor_confirmed_at != null,
             $eloquentUser->two_factor_recovery_codes
         );
+    }
+    public function findAuthenticatableById(string $userId): ?Authenticatable
+    {
+        return \InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User::find($userId);
     }
 }

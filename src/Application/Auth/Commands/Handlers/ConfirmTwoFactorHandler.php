@@ -4,6 +4,7 @@ namespace InnoSoft\AuthCore\Application\Auth\Commands\Handlers;
 
 use Illuminate\Validation\ValidationException;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorProvider;
+use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnabled;
 use InnoSoft\AuthCore\Domain\Users\UserRepository;
 
 final class ConfirmTwoFactorHandler
@@ -40,6 +41,8 @@ final class ConfirmTwoFactorHandler
 
         $this->userRepository->save($user);
 
+        // 5. Event
+        event(new TwoFactorEnabled($userId));
         return ['recovery_codes' => $recoveryCodes];
     }
 }
