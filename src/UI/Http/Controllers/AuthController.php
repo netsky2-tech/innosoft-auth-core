@@ -27,9 +27,11 @@ use InnoSoft\AuthCore\UI\Http\Requests\LoginRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\RegisterRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\ResetPasswordRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\VerifyTwoFactorRequest;
+use InnoSoft\AuthCore\UI\Http\Responses\ApiResponse;
 
 class AuthController extends Controller
 {
+    use ApiResponse;
     public function __construct(private readonly CacheTwoFactorChallengeService $challengeService)
     {}
 
@@ -49,9 +51,7 @@ class AuthController extends Controller
         $handler->handle($command);
 
         // Response
-        return response()->json([
-            'message' => 'User registered successfully',
-        ], 201);
+        return $this->successResponse('','User registered successfully.', 201);
     }
 
     public function login(LoginRequest $request, LoginUserHandler $handler): JsonResponse
@@ -63,36 +63,34 @@ class AuthController extends Controller
                 deviceName: $request->device_name ?? 'unknown'
             ));
 
-            return response()->json($result);
+            return $this->successResponse($result, 'Logged in successfully', 200);
 
         } catch (InvalidCredentialsException $e) {
-            return response()->json(['error' => $e->getMessage()], 401);
+            return $this->errorResponse('Invalid credentials', 401,'AUTH_FAILED', $e->getMessage());
         } catch (TwoFactorRequiredException $e) {
             $challengeToken = $this->challengeService->createChallenge($e->userId);
 
-            return response()->json([
-                'message' => 'Two-factor authentication required',
-                'requires_two_factor' => true,
-                'challenge_token' => $challengeToken
-            ]);
+            return $this->twoFactorRequiredResponse($challengeToken, 300);
         }
     }
 
     public function forgotPassword(ForgotPasswordRequest $request, RequestPasswordResetHandler $handler): JsonResponse
     {
         $handler->handle(new RequestPasswordResetCommand($request->validated('email')));
-        return response()->json(['message' => 'If your email is registered, you will receive a reset link.']);
+        return $this->successResponse('','If your email is registered, you will receive a reset link.', 200);
     }
 
     public function resetPassword(ResetPasswordRequest $request, ResetPasswordHandler $handler): JsonResponse
     {
         try {
             $handler->handle(new ResetPasswordCommand(
-                $request->validated('email'), $request->validated('token'), $request->validated('password')
+                $request->validated('email'),
+                $request->validated('token'),
+                $request->validated('password')
             ));
-            return response()->json(['message' => 'Password has been reset successfully.']);
+            return $this->successResponse('', 'Password has been reset successfully', 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
+            return $this->errorResponse('An error occurred', $e->getCode(), 'EXCEPTION', $e->getMessage());
         }
     }
 
@@ -105,17 +103,21 @@ class AuthController extends Controller
                 $request->validated('device_name')
             );
 
-            return response()->json($result);
+            return $this->successResponse($result, 'Two factor authentication has been verified.', 200);
 
         } catch (InvalidCredentialsException $e) {
-            return response()->json(['message' => 'Invalid code or expired session.'], 401);
+            return $this->errorResponse(
+                'Invalid credentials',
+                401,
+                'INVALID_CREDENTIALS',
+                $e->getMessage());
         }
     }
 
     public function enableTwoFactor(Request $request, EnableTwoFactorHandler $handler): JsonResponse
     {
         $data = $handler->handle($request->user()->id);
-        return response()->json($data);
+        return $this->successResponse($data, 'Two factor authentication has been enabled.', 200);
     }
 
     /**
@@ -126,7 +128,7 @@ class AuthController extends Controller
         $request->validate(['code' => 'required|string']);
 
         $data = $handler->handle($request->user()->id, $request->code);
-        return response()->json($data);
+        return $this->successResponse($data, 'Two factor authentication has been verified.', 200);
     }
 
     /**
@@ -140,8 +142,6 @@ class AuthController extends Controller
 
         $handler->handle($request->user()->id, $request->current_password);
 
-        return response()->json([
-            'message' => 'Two factor authentication disabled successfully.'
-        ]);
+        return $this->successResponse('', 'Two factor authentication disabled successfully..', 200);
     }
 }
