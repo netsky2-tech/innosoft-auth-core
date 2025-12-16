@@ -10,7 +10,10 @@ use InnoSoft\AuthCore\Domain\Users\ValueObjects\EmailAddress;
 use InnoSoft\AuthCore\Domain\Users\Exceptions\InvalidCredentialsException;
 use Illuminate\Support\Facades\Hash;
 
-test('it logs in a user with valid credentials and returns a token', function () {
+test(/**
+ * @throws TwoFactorRequiredException
+ * @throws InvalidCredentialsException
+ */ 'it logs in a user with valid credentials and returns a token', function () {
     // 1. Arrange
 
     // --- Configuración de datos ---
@@ -79,7 +82,7 @@ test('it logs in a user with valid credentials and returns a token', function ()
                 && $event->guard === 'sanctum';
         });
 
-    // Mockear el servicio 2FA (siempre necesario para el constructor)
+    // Mockear el servicio 2FA
     $twoFactorService = Mockery::mock(\InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorChallengeService::class);
 
     // 2. Act
@@ -124,6 +127,9 @@ test('it throws invalid credentials exception if password does not match', funct
     $command = new LoginUserCommand('john@innosoft.com', 'wrong-pass');
     $handler = new LoginUserHandler($repo, $tokenIssuer);
 
-    expect(fn() => $handler->handle($command))
+    expect(/**
+     * @throws TwoFactorRequiredException
+     * @throws InvalidCredentialsException
+     */ fn() => $handler->handle($command))
         ->toThrow(InvalidCredentialsException::class);
 });

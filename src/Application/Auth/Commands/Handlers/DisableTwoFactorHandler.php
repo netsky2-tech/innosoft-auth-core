@@ -4,6 +4,7 @@ namespace InnoSoft\AuthCore\Application\Auth\Commands\Handlers;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorDisabled;
 use InnoSoft\AuthCore\Domain\Users\UserRepository;
 
 final readonly class DisableTwoFactorHandler
@@ -31,5 +32,8 @@ final readonly class DisableTwoFactorHandler
 
         // 3. Persist changes
         $this->userRepository->save($user);
+
+        // 4. Event
+        event(new TwoFactorDisabled($userId));
     }
 }
