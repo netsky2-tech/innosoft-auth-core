@@ -1,6 +1,8 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use InnoSoft\AuthCore\UI\Http\Controllers\AuthController;
+use InnoSoft\AuthCore\UI\Http\Controllers\UserController;
+
 
 Route::prefix('api/auth')->middleware('api')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
@@ -21,3 +23,11 @@ Route::middleware(['api', 'auth:sanctum'])->prefix('api/auth/two-factor')->group
     Route::post('confirm', [AuthController::class, 'confirmTwoFactor']);
     Route::delete('/', [AuthController::class, 'disableTwoFactor']);
 });
+
+Route::middleware(['auth:sanctum'])->prefix('api/user')->group(function () {
+    Route::apiResource('users', UserController::class);
+});
+
+// protect specific endpoint by permission
+Route::delete('/users/{id}', [UserController::class, 'destroy'])
+    ->middleware('permission:users.delete');

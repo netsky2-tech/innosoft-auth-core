@@ -7,7 +7,7 @@ use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User;
 
 class ListUsersQueryHandler
 {
-    public function __invoke(ListUsersQuery $query)
+    public function __invoke(ListUsersQuery $query): \Illuminate\Pagination\LengthAwarePaginator
     {
         $builder = User::query();
 
