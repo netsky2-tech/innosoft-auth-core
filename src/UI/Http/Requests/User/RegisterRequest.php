@@ -6,7 +6,9 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class RegisterRequest extends FormRequest
 {
-    public function authorize(): bool { return true; }
+    public function authorize(): bool {
+        return $this->user()->can('users.create');
+    }
 
     public function rules(): array
     {

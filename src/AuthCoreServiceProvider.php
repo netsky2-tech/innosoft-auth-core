@@ -25,6 +25,9 @@ use InnoSoft\AuthCore\Infrastructure\Persistence\EloquentUserRepository;
 use InnoSoft\AuthCore\Infrastructure\Persistence\SpatieRoleRepository;
 use InnoSoft\AuthCore\Infrastructure\Services\LaravelAuditLogger;
 use InnoSoft\AuthCore\UI\Http\Middleware\CheckPermissionMiddleware;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middleware\RoleMiddleware;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 
 class AuthCoreServiceProvider extends ServiceProvider
 {
