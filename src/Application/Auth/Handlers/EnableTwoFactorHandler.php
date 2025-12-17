@@ -1,9 +1,9 @@
 <?php
 
-namespace InnoSoft\AuthCore\Application\Auth\Commands\Handlers;
+namespace InnoSoft\AuthCore\Application\Auth\Handlers;
 
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorProvider;
-use InnoSoft\AuthCore\Domain\Users\UserRepository;
+use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 
 final readonly class EnableTwoFactorHandler
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace InnoSoft\AuthCore\UI\Http\Requests;
+namespace InnoSoft\AuthCore\UI\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 

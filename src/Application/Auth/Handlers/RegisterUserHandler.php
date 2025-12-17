@@ -1,12 +1,12 @@
 <?php
 
-namespace InnoSoft\AuthCore\Application\Auth\Commands\Handlers;
+namespace InnoSoft\AuthCore\Application\Auth\Handlers;
 
 use Illuminate\Support\Facades\Hash;
 use InnoSoft\AuthCore\Application\Auth\Commands\RegisterUserCommand;
 use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
 use InnoSoft\AuthCore\Domain\Users\Exceptions\UserAlreadyExistsException;
-use InnoSoft\AuthCore\Domain\Users\UserRepository;
+use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 use InnoSoft\AuthCore\Domain\Users\ValueObjects\EmailAddress;
 use Ramsey\Uuid\Uuid;
 

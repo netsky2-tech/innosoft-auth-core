@@ -1,12 +1,11 @@
 <?php
 
 use InnoSoft\AuthCore\Application\Auth\Commands\ResetPasswordCommand;
-use InnoSoft\AuthCore\Application\Auth\Commands\Handlers\ResetPasswordHandler;
-use InnoSoft\AuthCore\Domain\Users\UserRepository;
+use InnoSoft\AuthCore\Application\Auth\Handlers\ResetPasswordHandler;
 use InnoSoft\AuthCore\Domain\Auth\Services\PasswordTokenService;
 use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
+use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 use InnoSoft\AuthCore\Domain\Users\ValueObjects\EmailAddress;
-use InnoSoft\AuthCore\Domain\Users\Exceptions\InvalidCredentialsException;
 
 test(/**
  * @throws Exception

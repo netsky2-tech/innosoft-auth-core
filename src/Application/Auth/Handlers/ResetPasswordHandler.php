@@ -1,6 +1,6 @@
 <?php
 
-namespace InnoSoft\AuthCore\Application\Auth\Commands\Handlers;
+namespace InnoSoft\AuthCore\Application\Auth\Handlers;
 
 use Exception;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -8,8 +8,7 @@ use Illuminate\Contracts\Hashing\Hasher;
 use InnoSoft\AuthCore\Application\Auth\Commands\ResetPasswordCommand;
 use InnoSoft\AuthCore\Domain\Auth\Services\PasswordTokenService;
 use InnoSoft\AuthCore\Domain\Users\Events\PasswordResetCompleted;
-use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnabled;
-use InnoSoft\AuthCore\Domain\Users\UserRepository;
+use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 
 final readonly class ResetPasswordHandler
 {

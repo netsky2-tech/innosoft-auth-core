@@ -11,8 +11,8 @@ class User
 
     public function __construct(
         private readonly string       $id,
-        private readonly string       $name,
-        private readonly EmailAddress $email,
+        private string       $name,
+        private EmailAddress $email,
         private string $passwordHash,
         private ?string $twoFactorSecret,
         private ?bool $twoFactorConfirmed,
@@ -64,6 +64,15 @@ class User
     public function updatePassword(string $newPasswordHash): void
     {
         $this->passwordHash = $newPasswordHash;
+    }
+    public function updateName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function updateEmail(EmailAddress $email): void
+    {
+        $this->email = $email;
     }
 
     public function enableTwoFactor(string $secret): void

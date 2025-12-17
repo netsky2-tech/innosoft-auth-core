@@ -1,12 +1,12 @@
 <?php
 
 use InnoSoft\AuthCore\Application\Auth\Commands\RequestPasswordResetCommand;
-use InnoSoft\AuthCore\Application\Auth\Commands\Handlers\RequestPasswordResetHandler;
-use InnoSoft\AuthCore\Domain\Users\UserRepository;
+use InnoSoft\AuthCore\Application\Auth\Handlers\RequestPasswordResetHandler;
 use InnoSoft\AuthCore\Domain\Auth\Services\PasswordTokenService;
-use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
-use InnoSoft\AuthCore\Domain\Users\ValueObjects\EmailAddress;
 use InnoSoft\AuthCore\Domain\Shared\DomainEventBus;
+use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
+use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
+use InnoSoft\AuthCore\Domain\Users\ValueObjects\EmailAddress;
 
 test('it creates a reset token and fires event when user exists', function () {
     // 1. Arrange

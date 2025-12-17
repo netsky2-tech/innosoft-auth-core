@@ -14,12 +14,12 @@ use InnoSoft\AuthCore\Domain\Auth\Services\TokenIssuer;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorChallengeService;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorProvider;
 use InnoSoft\AuthCore\Domain\Shared\Services\AuditLogger;
-use InnoSoft\AuthCore\Domain\Users\UserRepository;
+use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 use InnoSoft\AuthCore\Infrastructure\Auth\CacheTwoFactorChallengeService;
 use InnoSoft\AuthCore\Infrastructure\Auth\GoogleTwoFactorProvider;
 use InnoSoft\AuthCore\Infrastructure\Auth\LaravelPasswordTokenService;
 use InnoSoft\AuthCore\Infrastructure\Auth\SanctumTokenIssuer;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\EloquentUserRepository;
+use InnoSoft\AuthCore\Infrastructure\Persistence\EloquentUserRepository;
 use InnoSoft\AuthCore\Infrastructure\Services\LaravelAuditLogger;
 use InnoSoft\AuthCore\UI\Http\Middleware\CheckPermissionMiddleware;
 

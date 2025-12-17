@@ -1,14 +1,14 @@
 <?php
 
+use Illuminate\Support\Facades\Hash;
 use InnoSoft\AuthCore\Application\Auth\Commands\LoginUserCommand;
-use InnoSoft\AuthCore\Application\Auth\Commands\Handlers\LoginUserHandler;
+use InnoSoft\AuthCore\Application\Auth\Handlers\LoginUserHandler;
 use InnoSoft\AuthCore\Domain\Auth\Exceptions\TwoFactorRequiredException;
-use InnoSoft\AuthCore\Domain\Users\UserRepository;
 use InnoSoft\AuthCore\Domain\Auth\Services\TokenIssuer;
 use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
-use InnoSoft\AuthCore\Domain\Users\ValueObjects\EmailAddress;
 use InnoSoft\AuthCore\Domain\Users\Exceptions\InvalidCredentialsException;
-use Illuminate\Support\Facades\Hash;
+use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
+use InnoSoft\AuthCore\Domain\Users\ValueObjects\EmailAddress;
 
 test(/**
  * @throws TwoFactorRequiredException

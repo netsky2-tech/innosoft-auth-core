@@ -1,10 +1,10 @@
 <?php
 
-namespace InnoSoft\AuthCore\Application\Auth\Commands\Handlers;
+namespace InnoSoft\AuthCore\Application\Auth\Handlers;
 
 use InnoSoft\AuthCore\Application\Auth\Commands\RequestPasswordResetCommand;
 use InnoSoft\AuthCore\Domain\Auth\Services\PasswordTokenService;
-use InnoSoft\AuthCore\Domain\Users\UserRepository;
+use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 
 final class RequestPasswordResetHandler
 {

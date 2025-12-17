@@ -1,10 +1,10 @@
 <?php
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
 use InnoSoft\AuthCore\Domain\Users\ValueObjects\EmailAddress;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\EloquentUserRepository;
 use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User as EloquentUser;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use InnoSoft\AuthCore\Infrastructure\Persistence\EloquentUserRepository;
 
 uses(RefreshDatabase::class);
 

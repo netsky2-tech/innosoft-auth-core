@@ -1,6 +1,6 @@
 <?php
 
-namespace InnoSoft\AuthCore\Application\Auth\Commands\Handlers;
+namespace InnoSoft\AuthCore\Application\Auth\Handlers;
 
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Event;
@@ -9,7 +9,7 @@ use InnoSoft\AuthCore\Application\Auth\Commands\LoginUserCommand;
 use InnoSoft\AuthCore\Domain\Auth\Exceptions\TwoFactorRequiredException;
 use InnoSoft\AuthCore\Domain\Auth\Services\TokenIssuer;
 use InnoSoft\AuthCore\Domain\Users\Exceptions\InvalidCredentialsException;
-use InnoSoft\AuthCore\Domain\Users\UserRepository;
+use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 
 
 final class LoginUserHandler

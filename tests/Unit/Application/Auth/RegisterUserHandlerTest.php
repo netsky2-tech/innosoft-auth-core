@@ -1,10 +1,10 @@
 <?php
 
-use InnoSoft\AuthCore\Application\Auth\Commands\RegisterUserCommand;
-use InnoSoft\AuthCore\Application\Auth\Commands\Handlers\RegisterUserHandler;
-use InnoSoft\AuthCore\Domain\Users\UserRepository;
-use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
 use Illuminate\Support\Facades\Hash;
+use InnoSoft\AuthCore\Application\Auth\Commands\RegisterUserCommand;
+use InnoSoft\AuthCore\Application\Auth\Handlers\RegisterUserHandler;
+use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
+use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 
 test('it handles user registration successfully', function () {
     // 1. Arrange

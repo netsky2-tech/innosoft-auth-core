@@ -1,11 +1,11 @@
 <?php
 
-namespace InnoSoft\AuthCore\Application\Auth\Commands\Handlers;
+namespace InnoSoft\AuthCore\Application\Auth\Handlers;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorDisabled;
-use InnoSoft\AuthCore\Domain\Users\UserRepository;
+use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 
 final readonly class DisableTwoFactorHandler
 {

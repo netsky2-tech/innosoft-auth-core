@@ -1,10 +1,11 @@
 <?php
 
-namespace InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent;
+namespace InnoSoft\AuthCore\Infrastructure\Persistence;
 
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
-use InnoSoft\AuthCore\Domain\Users\UserRepository;
+use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User as EloquentModel;
 
 class EloquentUserRepository implements UserRepository
@@ -67,6 +68,21 @@ class EloquentUserRepository implements UserRepository
     }
     public function findAuthenticatableById(string $userId): ?Authenticatable
     {
-        return \InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User::find($userId);
+        return EloquentModel::find($userId);
+    }
+
+    public function paginate(int $perPage = 5): LengthAwarePaginator
+    {
+        return EloquentModel::newQuery()->paginate($perPage);
+    }
+
+    public function existsByEmail(string $email): bool
+    {
+        return EloquentModel::where('email', $email)->exists();
+    }
+
+    public function delete(string $id): void
+    {
+        EloquentModel::find($id)->delete();
     }
 }
