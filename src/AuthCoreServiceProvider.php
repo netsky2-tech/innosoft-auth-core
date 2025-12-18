@@ -55,7 +55,7 @@ class AuthCoreServiceProvider extends ServiceProvider
     {
         // Gate global (super admin)
         Gate::before(function ($user, $ability) {
-            $superAdminRole = config('innosoft-auth.super_admin_role', 'SuperAdmin');
+            $superAdminRole = config('auth-core.super_admin_role', 'SuperAdmin');
             return $user->hasRole($superAdminRole) ? true : null;
         });
 

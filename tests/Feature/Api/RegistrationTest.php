@@ -3,10 +3,13 @@
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabase::class, \InnoSoft\AuthCore\Tests\Traits\HasAuthHelpers::class);
 
 test('api can register a new user', function () {
-    $response = $this->postJson('/api/auth/register', [
+    $admin = $this->createSuperAdmin();
+
+    $response = $this->actingAs($admin, 'api')
+        ->postJson('/api/auth/register', [
         'name' => 'API User',
         'email' => 'api@innosoft.com',
         'password' => 'SecurePass123!',
@@ -14,16 +17,23 @@ test('api can register a new user', function () {
     ]);
 
     $response->assertStatus(201)
-    ->assertJson(['message' => 'User registered successfully']);
+        ->assertJson([
+            'success' => true,
+            'message' => 'User registered successfully.'
+        ]);
 
     expect(User::where('email', 'api@innosoft.com')->exists())->toBeTrue();
 });
 
 test('registration fails with invalid data', function () {
-    $response = $this->postJson('/api/auth/register', [
-        'email' => 'not-an-email',
-        'password' => 'short'
-    ]);
+
+    $admin = $this->createSuperAdmin();
+
+    $response = $this->actingAs($admin, 'api')
+        ->postJson('/api/auth/register', [
+            'email' => 'not-an-email',
+            'password' => 'short'
+        ]);
 
     $response->assertStatus(422);
 });

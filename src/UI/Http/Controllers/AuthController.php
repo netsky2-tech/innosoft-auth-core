@@ -142,6 +142,6 @@ class AuthController extends Controller
 
         $handler->handle($request->user()->id, $request->current_password);
 
-        return $this->successResponse('', 'Two factor authentication disabled successfully..', 200);
+        return $this->successResponse(null, 'Two factor authentication disabled successfully.', 200);
     }
 }

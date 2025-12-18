@@ -13,10 +13,20 @@ test('user with 2fa enabled receives challenge instead of token', function () {
     ]);
 
     // Assert: Recibimos estructura de desafío
-    $response->assertJson([
-        'requires_two_factor' => true
+    $response->assertOk() // Tu trait devuelve un 200 en este caso
+    ->assertJson([
+        'success' => true,
+        'status' => '2fa_required',
+        'message' => 'Two factor authentication required.',
+    ])->assertJsonStructure([
+        'success',
+        'status',
+        'message',
+        'data' => [
+            'temp_token',
+            'expires_in'
+        ]
     ]);
-    $this->assertArrayHasKey('challenge_token', $response->json());
 });
 
 test('user can complete login with valid otp', function () {
@@ -37,5 +47,12 @@ test('user can complete login with valid otp', function () {
     ]);
 
     // Assert: Token final
-    $response->assertOk()->assertJsonStructure(['access_token']);
+    $response->assertOk()
+        ->assertJsonStructure([
+            'success',
+            'message',
+            'data' => [
+                'access_token',
+            ]
+        ]);
 });

@@ -49,6 +49,7 @@ final class LoginUserHandler
         $token = $this->tokenIssuer->issue($user, $command->deviceName);
 
         return [
+            'success' => true,
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => [

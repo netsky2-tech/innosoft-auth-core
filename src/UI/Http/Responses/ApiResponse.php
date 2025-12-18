@@ -9,13 +9,17 @@ trait ApiResponse
     /**
      * Standard Success Response (200 OK)
      */
-    protected function successResponse(mixed $data, string $message = 'OK', int $code = 200): JsonResponse
+    protected function successResponse(mixed $data = null, string $message = 'OK', int $code = 200): JsonResponse
     {
-        return response()->json([
+        $payload = [
             'success' => true,
-            'data'    => $data,
             'message' => $message,
-        ], $code);
+        ];
+        if(!is_null($data)) {
+            $payload['data'] = $data;
+        }
+
+        return response()->json($payload, $code);
     }
 
     /**

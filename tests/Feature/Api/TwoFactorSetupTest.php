@@ -15,7 +15,14 @@ test('authenticated user can initiate 2fa setup', function () {
 
     // Assert
     $response->assertOk()
-        ->assertJsonStructure(['secret', 'qr_code_url']);
+        ->assertJsonStructure([
+            'success',
+            'message',
+            'data' => [
+                'secret',
+                'qr_code_url'
+            ]
+        ]);
 
     // Verify that the secret key was saved but not confirmed
     $user->refresh();
@@ -42,7 +49,13 @@ test('user can confirm 2fa setup with valid code', function () {
 
     // Assert
     $response->assertOk()
-        ->assertJsonStructure(['recovery_codes']);
+        ->assertJsonStructure([
+            'success',
+            'message',
+            'data' => [
+                'recovery_codes',
+            ]
+        ]);
 
     $user->refresh();
     expect($user->two_factor_confirmed_at)->not->toBeNull();

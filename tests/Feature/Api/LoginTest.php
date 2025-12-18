@@ -23,8 +23,9 @@ test('user can login and receive token', function () {
     ]);
 
     // Assert
-    $response->assertOk()
-        ->assertJsonStructure(['access_token', 'token_type']);
+    $response->assertOk();
+    expect($response->json('data.access_token'))->not->toBeEmpty()
+        ->and($response->json('success'))->toBeTrue();
 });
 
 test('login enforces rate limiting', function () {

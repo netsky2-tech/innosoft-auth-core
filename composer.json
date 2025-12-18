@@ -1,12 +1,13 @@
 {
   "name": "innosoft/auth-core",
-  "description": "Core Authentication and Authorization Package for InnoSoft Ecosystem",
+  "description": "Core Authentication, Authorization (RBAC) and Security Package for InnoSoft Ecosystem",
   "type": "library",
   "license": "proprietary",
   "authors": [
     {
       "name": "Octavio Morales",
-      "email": "octaviomr9810@gmail.com"
+      "email": "octaviomr9810@gmail.com",
+      "role": "Lead Developer"
     }
   ],
   "require": {
@@ -28,7 +29,8 @@
   "autoload": {
     "psr-4": {
       "InnoSoft\\AuthCore\\": "src/",
-      "InnoSoft\\AuthCore\\Database\\Factories\\": "database/factories/"
+      "InnoSoft\\AuthCore\\Database\\Factories\\": "database/factories/",
+      "InnoSoft\\AuthCore\\Database\\Seeders\\": "database/seeders/"
     }
   },
   "autoload-dev": {

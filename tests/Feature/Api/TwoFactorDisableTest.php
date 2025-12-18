@@ -22,7 +22,15 @@ test('user can disable two factor authentication with valid password', function 
 
     // 3. Assert
     $response->assertOk()
-        ->assertJson(['message' => 'Two factor authentication disabled successfully.']);
+        ->assertJsonStructure([
+            'success',
+            'message',
+        ])
+        ->assertJson([
+            'success' => true,
+            'message' => 'Two factor authentication disabled successfully.',
+        ]);
+
 
     // verify bd fields
     $user->refresh();
