@@ -22,6 +22,9 @@ use InnoSoft\AuthCore\Domain\Auth\Exceptions\TwoFactorRequiredException;
 use InnoSoft\AuthCore\Domain\Users\Exceptions\InvalidCredentialsException;
 use InnoSoft\AuthCore\Domain\Users\Exceptions\UserAlreadyExistsException;
 use InnoSoft\AuthCore\Infrastructure\Auth\CacheTwoFactorChallengeService;
+use InnoSoft\AuthCore\UI\Http\Requests\ConfirmTwoFactorRequest;
+use InnoSoft\AuthCore\UI\Http\Requests\DisableTwoFactorRequest;
+use InnoSoft\AuthCore\UI\Http\Requests\EnableTwoFactorRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\ForgotPasswordRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\LoginRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\ResetPasswordRequest;
@@ -114,7 +117,7 @@ class AuthController extends Controller
         }
     }
 
-    public function enableTwoFactor(Request $request, EnableTwoFactorHandler $handler): JsonResponse
+    public function enableTwoFactor(EnableTwoFactorRequest $request, EnableTwoFactorHandler $handler): JsonResponse
     {
         $data = $handler->handle($request->user()->id);
         return $this->successResponse($data, 'Two factor authentication has been enabled.', 200);
@@ -123,24 +126,20 @@ class AuthController extends Controller
     /**
      * @throws ValidationException
      */
-    public function confirmTwoFactor(Request $request, ConfirmTwoFactorHandler $handler
-    ): JsonResponse {
-        $request->validate(['code' => 'required|string']);
+    public function confirmTwoFactor(ConfirmTwoFactorRequest $request, ConfirmTwoFactorHandler $handler): JsonResponse
+    {
 
-        $data = $handler->handle($request->user()->id, $request->code);
+        $data = $handler->handle($request->user()->id, $request->validated('code'));
         return $this->successResponse($data, 'Two factor authentication has been verified.', 200);
     }
 
     /**
      * @throws ValidationException
      */
-    public function disableTwoFactor(Request $request, DisableTwoFactorHandler $handler): JsonResponse
+    public function disableTwoFactor(DisableTwoFactorRequest $request, DisableTwoFactorHandler $handler): JsonResponse
     {
-        $request->validate([
-            'current_password' => 'required|string'
-        ]);
 
-        $handler->handle($request->user()->id, $request->current_password);
+        $handler->handle($request->user()->id, $request->validated('current_password'));
 
         return $this->successResponse(null, 'Two factor authentication disabled successfully.', 200);
     }
