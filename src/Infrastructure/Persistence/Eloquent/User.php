@@ -8,11 +8,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use InnoSoft\AuthCore\Database\Factories\UserFactory;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles, SoftDeletes;
+    use LogsActivity;
     protected $guard_name = 'api';
     protected $table = 'users';
 
@@ -43,5 +46,14 @@ class User extends Authenticatable
     protected static function newFactory(): UserFactory
     {
         return UserFactory::new();
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll() // Registra todos los atributos fillable
+            ->logOnlyDirty() // Solo registra lo que cambió
+            ->dontSubmitEmptyLogs() // No registra si no hubo cambios reales
+            ->setDescriptionForEvent(fn(string $eventName) => "User has been {$eventName}");
     }
 }
