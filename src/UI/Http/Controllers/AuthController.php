@@ -3,7 +3,6 @@
 namespace InnoSoft\AuthCore\UI\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Validation\ValidationException;
 use InnoSoft\AuthCore\Application\Auth\Commands\LoginUserCommand;
@@ -19,9 +18,9 @@ use InnoSoft\AuthCore\Application\Auth\Handlers\RequestPasswordResetHandler;
 use InnoSoft\AuthCore\Application\Auth\Handlers\ResetPasswordHandler;
 use InnoSoft\AuthCore\Application\Auth\Handlers\VerifyTwoFactorLoginHandler;
 use InnoSoft\AuthCore\Domain\Auth\Exceptions\TwoFactorRequiredException;
+use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorChallengeService;
 use InnoSoft\AuthCore\Domain\Users\Exceptions\InvalidCredentialsException;
 use InnoSoft\AuthCore\Domain\Users\Exceptions\UserAlreadyExistsException;
-use InnoSoft\AuthCore\Infrastructure\Auth\CacheTwoFactorChallengeService;
 use InnoSoft\AuthCore\UI\Http\Requests\ConfirmTwoFactorRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\DisableTwoFactorRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\EnableTwoFactorRequest;
@@ -35,7 +34,7 @@ use InnoSoft\AuthCore\UI\Http\Responses\ApiResponse;
 class AuthController extends Controller
 {
     use ApiResponse;
-    public function __construct(private readonly CacheTwoFactorChallengeService $challengeService)
+    public function __construct(private readonly TwoFactorChallengeService $challengeService)
     {}
 
     /**
