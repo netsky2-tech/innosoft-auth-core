@@ -6,15 +6,19 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
 use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User as EloquentModel;
+use Illuminate\Database\Eloquent\Model;
 
-class EloquentUserRepository implements UserRepository
+readonly class EloquentUserRepository implements UserRepository
 {
+
+    public function __construct(
+        private Model $model
+    ) {}
 
     public function save(User $user): void
     {
         // Mapping: Domain -> Eloquent (Active Record)
-        EloquentModel::updateOrCreate(
+        $this->model->updateOrCreate(
             ['id' => $user->getId()],
             [
                 'name' => $user->getName(),
@@ -29,7 +33,7 @@ class EloquentUserRepository implements UserRepository
 
     public function findByEmail(string $email): ?User
     {
-        $eloquentUser = EloquentModel::where('email', $email)->first();
+        $eloquentUser = $this->model->where('email', $email)->first();
 
         if (!$eloquentUser) {
             return null;
@@ -49,7 +53,7 @@ class EloquentUserRepository implements UserRepository
 
     public function findById(string $id): ?User
     {
-        $eloquentUser = EloquentModel::where('id', $id)->first();
+        $eloquentUser = $this->model->where('id', $id)->first();
 
         if (!$eloquentUser) {
             return null;
@@ -68,21 +72,21 @@ class EloquentUserRepository implements UserRepository
     }
     public function findAuthenticatableById(string $userId): ?Authenticatable
     {
-        return EloquentModel::find($userId);
+        return $this->model->find($userId);
     }
 
     public function paginate(int $perPage = 5): LengthAwarePaginator
     {
-        return EloquentModel::newQuery()->paginate($perPage);
+        return $this->model->newQuery()->paginate($perPage);
     }
 
     public function existsByEmail(string $email): bool
     {
-        return EloquentModel::where('email', $email)->exists();
+        return $this->model->where('email', $email)->exists();
     }
 
     public function delete(string $id): void
     {
-        EloquentModel::find($id)->delete();
+        $this->model->find($id)->delete();
     }
 }

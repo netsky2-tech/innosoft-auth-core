@@ -36,8 +36,18 @@ class AuthCoreServiceProvider extends ServiceProvider
         // merge default settings
         $this->mergeConfigFrom(__DIR__.'/../config/auth-core.php', 'auth-core');
 
+        // Biding del repositorio con modelo dinamico
+        $this->app->bind(UserRepository::class, function ($app) {
+            $modelClass = config('auth-core.user_model');
+
+            if (!class_exists($modelClass)) {
+                throw new \RuntimeException("The configured user model [$modelClass] does not exist.");
+            }
+
+            return new EloquentUserRepository(new $modelClass);
+        });
+
         // Biding interfaces and implementations
-        $this->app->bind(UserRepository::class, EloquentUserRepository::class);
         $this->app->bind(TokenIssuer::class, SanctumTokenIssuer::class);
         $this->app->bind(PasswordTokenService::class, LaravelPasswordTokenService::class);
         $this->app->bind(TwoFactorProvider::class, GoogleTwoFactorProvider::class);
@@ -54,10 +64,7 @@ class AuthCoreServiceProvider extends ServiceProvider
     public function boot(Router $router): void
     {
         // Gate global (super admin)
-        Gate::before(function ($user, $ability) {
-            $superAdminRole = config('auth-core.super_admin_role', 'SuperAdmin');
-            return $user->hasRole($superAdminRole) ? true : null;
-        });
+        $this->registerSuperAdminGate();
 
         // Automatic registry of middlewares
         $router->aliasMiddleware('role', RoleMiddleware::class);
@@ -80,6 +87,20 @@ class AuthCoreServiceProvider extends ServiceProvider
         $router->aliasMiddleware('permission', CheckPermissionMiddleware::class);
 
         $this->configureRateLimiting();
+    }
+
+    protected function registerSuperAdminGate(): void
+    {
+        Gate::before(function ($user, $ability) {
+            // Usar config estricto
+            $roleName = config('auth-core.super_admin_role', 'SuperAdmin');
+
+            // Verificamos si el método existe para evitar errores si el User model es ajeno
+            if (method_exists($user, 'hasRole')) {
+                return $user->hasRole($roleName) ? true : null;
+            }
+            return null;
+        });
     }
 
     protected function configureRateLimiting(): void

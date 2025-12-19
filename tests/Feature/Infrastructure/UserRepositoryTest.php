@@ -2,13 +2,16 @@
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
+use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 use InnoSoft\AuthCore\Domain\Users\ValueObjects\EmailAddress;
 use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User as EloquentUser;
 use InnoSoft\AuthCore\Infrastructure\Persistence\EloquentUserRepository;
 
 uses(RefreshDatabase::class);
 
-test('it saves a domain user to the database using eloquent repository', function () {
+test(/**
+ * @throws \Illuminate\Contracts\Container\BindingResolutionException
+ */ 'it saves a domain user to the database using eloquent repository', function () {
     // 1. Arrange: Crear un Usuario de Dominio
     $domainUser = User::register(
         id: 'uuid-test-1234',
@@ -18,7 +21,7 @@ test('it saves a domain user to the database using eloquent repository', functio
     );
 
     // 2. Act: Guardar usando el repositorio
-    $repository = new EloquentUserRepository();
+    $repository = $this->app->make(UserRepository::class);
     $repository->save($domainUser);
 
     // 3. Assert: Verificar que existe en la tabla 'users' (Mundo Eloquent)
@@ -39,7 +42,7 @@ test('it can retrieve a domain user by email', function () {
     ]);
 
     // 2. Act: Buscar con el repositorio
-    $repository = new EloquentUserRepository();
+    $repository = $this->app->make(UserRepository::class);
     $foundUser = $repository->findByEmail('exist@innosoft.com');
 
     // 3. Assert: Debemos recibir una Entidad de Dominio, no un Modelo Eloquent

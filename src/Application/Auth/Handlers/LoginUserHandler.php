@@ -12,11 +12,11 @@ use InnoSoft\AuthCore\Domain\Users\Exceptions\InvalidCredentialsException;
 use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 
 
-final class LoginUserHandler
+final readonly class LoginUserHandler
 {
     public function __construct(
         private UserRepository $userRepository,
-        private TokenIssuer $tokenIssuer
+        private TokenIssuer    $tokenIssuer
     ) {}
 
     /**
