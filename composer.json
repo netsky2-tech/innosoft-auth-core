@@ -19,6 +19,7 @@
     "laravel/sanctum": "^4.0",
     "pragmarx/google2fa-laravel": "^2.3",
     "ramsey/uuid": "^4.9",
+    "spatie/laravel-activitylog": "^4.10",
     "spatie/laravel-permission": "^6.0"
   },
   "require-dev": {
