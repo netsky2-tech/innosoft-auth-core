@@ -24,6 +24,7 @@ use InnoSoft\AuthCore\Infrastructure\Auth\SanctumTokenIssuer;
 use InnoSoft\AuthCore\Infrastructure\Persistence\EloquentUserRepository;
 use InnoSoft\AuthCore\Infrastructure\Persistence\SpatieRoleRepository;
 use InnoSoft\AuthCore\Infrastructure\Services\LaravelAuditLogger;
+use InnoSoft\AuthCore\UI\Console\Commands\InstallAuthCoreCommand;
 use InnoSoft\AuthCore\UI\Http\Middleware\CheckPermissionMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
@@ -87,6 +88,12 @@ class AuthCoreServiceProvider extends ServiceProvider
         $router->aliasMiddleware('permission', CheckPermissionMiddleware::class);
 
         $this->configureRateLimiting();
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                InstallAuthCoreCommand::class,
+            ]);
+        }
     }
 
     protected function registerSuperAdminGate(): void
