@@ -22,7 +22,7 @@ final readonly class ResetPasswordHandler
     /**
      * @throws Exception
      */
-    public function handle(ResetPasswordCommand $command): void
+    public function handle(ResetPasswordCommand $command): \InnoSoft\AuthCore\Domain\Users\Aggregates\User
     {
         $user = $this->userRepository->findByEmail($command->email);
 
@@ -46,5 +46,7 @@ final readonly class ResetPasswordHandler
 
         // Event
         $this->dispatcher->dispatch(new PasswordResetCompleted($user->getId(), $user->getEmail()));
+
+        return $user;
     }
 }

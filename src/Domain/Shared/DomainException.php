@@ -2,7 +2,8 @@
 
 namespace InnoSoft\AuthCore\Domain\Shared;
 
-class DomainException
+use Exception;
+class DomainException extends Exception
 {
 
 }
