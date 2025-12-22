@@ -27,7 +27,7 @@ use InnoSoft\AuthCore\UI\Http\Requests\EnableTwoFactorRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\ForgotPasswordRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\LoginRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\ResetPasswordRequest;
-use InnoSoft\AuthCore\UI\Http\Requests\User\RegisterRequest;
+use InnoSoft\AuthCore\UI\Http\Requests\User\CreateUserRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\VerifyTwoFactorRequest;
 use InnoSoft\AuthCore\UI\Http\Responses\ApiResponse;
 use InnoSoft\AuthCore\UI\Http\Traits\HandlesAuthErrors;
@@ -40,7 +40,7 @@ class AuthController extends Controller
 
     /**
      */
-    public function register(RegisterRequest $request, RegisterUserHandler $handler): JsonResponse
+    public function register(CreateUserRequest $request, RegisterUserHandler $handler): JsonResponse
     {
         return $this->safeExecute(function () use ($request, $handler) {
 

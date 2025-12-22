@@ -12,7 +12,7 @@ use InnoSoft\AuthCore\Application\Users\Queries\GetUserQuery;
 use InnoSoft\AuthCore\Application\Users\Queries\ListUsersQuery;
 use InnoSoft\AuthCore\UI\Http\Requests\User\DeleteUserRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\User\ListUsersRequest;
-use InnoSoft\AuthCore\UI\Http\Requests\User\RegisterRequest;
+use InnoSoft\AuthCore\UI\Http\Requests\User\CreateUserRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\User\UpdateUserRequest;
 use InnoSoft\AuthCore\UI\Http\Resources\UserResource;
 use InnoSoft\AuthCore\UI\Http\Responses\ApiResponse;
@@ -22,9 +22,14 @@ class UserController extends Controller
     use ApiResponse;
     public function __construct(
         private readonly Dispatcher $dispatcher,
-    ){}
+    ){
+        $this->middleware('permission:users.view')->only(['index', 'show']);
+        $this->middleware('permission:users.create')->only(['store']);
+        $this->middleware('permission:users.update')->only(['update']);
+        $this->middleware('permission:users.delete')->only(['destroy']);
+    }
 
-    public function store(RegisterRequest $request): JsonResponse
+    public function store(CreateUserRequest $request): JsonResponse
     {
         $command = CreateUserCommand::fromRequest($request);
 
@@ -47,7 +52,7 @@ class UserController extends Controller
     {
         $command = new DeleteUserCommand(userId: $id);
 
-        $user = $this->dispatcher->dispatch($command);
+        $this->dispatcher->dispatch($command);
 
         return $this->successResponse(null, 'User successfully deleted.', 204);
     }
@@ -67,7 +72,7 @@ class UserController extends Controller
             page: $request->validated('page', 1),
             perPage: $request->validated('per_page', 15),
             search: $request->validated('search'),
-            sortBy: $request->validated('sort_by'),
+            sortBy: $request->validated('sort_by', 'created_at'),
         );
 
         $paginator = $this->dispatcher->dispatch($query);

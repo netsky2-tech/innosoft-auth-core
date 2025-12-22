@@ -51,7 +51,3 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     });
 
 });
-
-/* protect specific endpoint by permission
-Route::delete('/users/{id}', [UserController::class, 'destroy'])
-    ->middleware('permission:users.delete');*/

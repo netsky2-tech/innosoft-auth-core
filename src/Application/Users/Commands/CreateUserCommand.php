@@ -2,7 +2,7 @@
 
 namespace InnoSoft\AuthCore\Application\Users\Commands;
 
-use InnoSoft\AuthCore\UI\Http\Requests\User\RegisterRequest;
+use InnoSoft\AuthCore\UI\Http\Requests\User\CreateUserRequest;
 
 readonly class CreateUserCommand
 {
@@ -12,7 +12,7 @@ readonly class CreateUserCommand
         public string $password,
     ) {}
 
-    public static function fromRequest(RegisterRequest $request): self
+    public static function fromRequest(CreateUserRequest $request): self
     {
         return new self(
             name: $request->validated('name'),
