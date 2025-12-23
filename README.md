@@ -2,7 +2,7 @@
 
 Módulo central de autenticación, autorización (RBAC) y seguridad para el ecosistema InnoSoft (POS, Contabilidad, Agenda).
 
-Diseñado bajo arquitectura **Hexagonal (Ports & Adapters)** y **CQRS**, listo para escalar en múltiples microservicios o proyectos modulares.
+Diseñado bajo arquitectura **Hexagonal (Ports & Adapters)**, **DDD** y **CQRS**, listo para escalar en múltiples microservicios o proyectos modulares.
 
 ## Requisitos
 - PHP 8.2+
@@ -55,6 +55,61 @@ public function run(): void
 php artisan migrate --seed
 ```
 
+## Arquitectura orientada a Eventos (EDA)
+El paquete emite Eventos de Dominio que tu aplicación principal puede escuchar para reaccionar a cambios sin acoplarse al código de autenticación.
+
+Eventos Disponibles:
+
+- InnoSoft\AuthCore\Domain\Users\Events\UserRegistered
+
+- InnoSoft\AuthCore\Domain\Users\Events\UserEmailChanged
+
+- InnoSoft\AuthCore\Domain\Users\Events\UserPasswordChanged
+
+- InnoSoft\AuthCore\Domain\Users\Events\UserDeleted
+
+Ejemplo de Integración (En tu App):
+``` php
+// app/Providers/EventServiceProvider.php
+use InnoSoft\AuthCore\Domain\Users\Events\UserRegistered;
+
+protected $listen = [
+    UserRegistered::class => [
+        \App\Listeners\SetupUserTenant::class, // Tu lógica personalizada
+        \App\Listeners\SendWelcomeCoupon::class,
+    ],
+];
+```
+
+## Seguridad y Auditoria
+
+El paquete incluye un sistema de Logging de Auditoría automático.
+
+- Seguridad: Registra cambios de password, email, logins fallidos y exitosos.
+- Alertas: Envía correos de seguridad automáticamente cuando se cambia información sensible (ej. cambio de email).
+
+## API & Consumo (CQRS)
+
+### Gestión de Usuarios (Ejemplos)
+
+El módulo de usuarios expone endpoints RESTful optimizados.
+
+Listar Usuarios (Paginado y Filtrado):
+```http
+GET /api/users?page=1&per_page=10&search=juan
+```
+
+Crear Usuario:
+```http request
+POST /api/users
+Content-Type: application/json
+
+{
+    "name": "Juan Perez",
+    "email": "juan@example.com",
+    "password": "SecurePassword123!"
+}
+```
 ---
 
 ## v0.3.0: Sistema RBAC (Roles & Permissions)
