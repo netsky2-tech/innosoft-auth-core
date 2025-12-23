@@ -16,7 +16,7 @@ test('user can login and receive token', function () {
     ]);
 
     // Act
-    $response = $this->postJson('/api/auth/login', [
+    $response = $this->postJson('/api/v1/auth/login', [
         'email' => 'login@innosoft.com',
         'password' => 'password',
         'device_name' => 'TestDevice'
@@ -30,7 +30,7 @@ test('user can login and receive token', function () {
 
 test('login enforces rate limiting', function () {
     for ($i = 0; $i < 6; $i++) {
-        $response = $this->postJson('/api/auth/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'hacker@innosoft.com',
             'password' => 'wrong',
         ]);

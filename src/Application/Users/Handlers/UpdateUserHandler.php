@@ -2,11 +2,16 @@
 
 namespace InnoSoft\AuthCore\Application\Users\Handlers;
 
+use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use InnoSoft\AuthCore\Application\Users\Commands\UpdateUserCommand;
+use InnoSoft\AuthCore\Domain\Shared\DomainEventBus;
 use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
+use InnoSoft\AuthCore\Domain\Users\Events\UserUpdated;
 use InnoSoft\AuthCore\Domain\Users\Exceptions\UserAlreadyExistsException;
+use InnoSoft\AuthCore\Domain\Users\Exceptions\UserNotFoundException;
 use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 use InnoSoft\AuthCore\Domain\Users\ValueObjects\EmailAddress;
 
@@ -14,45 +19,59 @@ final readonly class UpdateUserHandler
 {
     public function __construct(
         private UserRepository $userRepository,
+        private Hasher $hasher,
+        private DomainEventBus $domainEventBus
     ){}
 
     /**
-     * @throws UserAlreadyExistsException
+     * @throws UserNotFoundException
      */
     public function __invoke(UpdateUserCommand $command): User
     {
         $user = $this->userRepository->findById($command->userId);
 
         if (!$user) {
-            throw new ModelNotFoundException("User with ID {$command->userId} not found.");
+            throw new UserNotFoundException("User with ID {$command->userId} not found.");
         }
 
-        if ($command->name !== null) {
-            $user->updateName($command->name);
-        }
-
-        if ($command->email !== null) {
-
-            $newEmail = new EmailAddress($command->email);
-
-            // Validate only if the email is different
-            if ($user->getEmail()->getValue() !== $newEmail->getValue()) {
-                if ($this->userRepository->existsByEmail($newEmail->getValue())) {
-                    throw new UserAlreadyExistsException("The new email {$newEmail->getValue()} is already taken by another user.");
-                }
-
-                $user->updateEmail($newEmail);
+        return DB::transaction(function () use ($user, $command) {
+            if ($command->name !== null) {
+                $user->updateName($command->name);
             }
 
+            if ($command->email !== null) {
+                $this->processEmailChange($user, $command->email);
+            }
+
+            if ($command->password !== null) {
+                $hashedPassword = $this->hasher->make($command->password);
+                $user->updatePassword($hashedPassword);
+            }
+
+            $this->userRepository->save($user);
+
+            $this->domainEventBus->publish(...$user->pullDomainEvents());
+
+            return $user;
+        });
+
+    }
+
+    /**
+     * @throws UserAlreadyExistsException
+     */
+    private function processEmailChange(User $user, string $newEmailString): void
+    {
+        $newEmail = new EmailAddress($newEmailString);
+
+        if ($user->getEmail()->equals($newEmail)) {
+            return;
         }
 
-        if ($command->password !== null) {
-            $user->updatePassword(Hash::make($command->password));
+        if ($this->userRepository->existsByEmail($newEmail->getValue())) {
+            throw new UserAlreadyExistsException("The email {$newEmail} is already taken.");
         }
 
-        $this->userRepository->save($user);
-
-        return $user;
-
+        $user->updateEmail($newEmail);
     }
 }

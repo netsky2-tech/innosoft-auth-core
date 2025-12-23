@@ -30,4 +30,9 @@ final class EmailAddress
     {
         return $this->value;
     }
+
+    public function equals(EmailAddress $emailAddress): bool
+    {
+        return $this->value === $emailAddress->getValue();
+    }
 }

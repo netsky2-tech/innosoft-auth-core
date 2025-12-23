@@ -30,11 +30,11 @@ use InnoSoft\AuthCore\UI\Http\Requests\ResetPasswordRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\User\CreateUserRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\VerifyTwoFactorRequest;
 use InnoSoft\AuthCore\UI\Http\Responses\ApiResponse;
-use InnoSoft\AuthCore\UI\Http\Traits\HandlesAuthErrors;
+use InnoSoft\AuthCore\UI\Http\Traits\HandlesApiExecution;
 
 class AuthController extends Controller
 {
-    use HandlesAuthErrors, ApiResponse;
+    use HandlesApiExecution, ApiResponse;
     public function __construct(private readonly TwoFactorChallengeService $challengeService)
     {}
 
@@ -72,7 +72,7 @@ class AuthController extends Controller
 
                 return $this->twoFactorRequiredResponse($challengeToken, 300);
             }
-        }, 'Logged in successfully');
+        }, 'Logged in successfully', 200);
     }
 
     public function forgotPassword(ForgotPasswordRequest $request, RequestPasswordResetHandler $handler): JsonResponse

@@ -7,7 +7,7 @@ test('user with 2fa enabled receives challenge instead of token', function () {
     ]);
 
     // Act: Login normal
-    $response = $this->postJson('/api/auth/login', [
+    $response = $this->postJson('/api/v1/auth/login', [
         'email' => $user->email,
         'password' => 'password'
     ]);
@@ -40,7 +40,7 @@ test('user can complete login with valid otp', function () {
         ->shouldReceive('verify')->with('TESTSECRET', '123456')->andReturn(true);
 
     // Act
-    $response = $this->postJson('/api/auth/two-factor/verify', [
+    $response = $this->postJson('/api/v1/auth/two-factor/verify', [
         'challenge_token' => $token,
         'code' => '123456',
         'device_name' => 'MyDevice'

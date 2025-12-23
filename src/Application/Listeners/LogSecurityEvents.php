@@ -28,35 +28,35 @@ readonly class LogSecurityEvents
     {
         $this->logger->logSecurityEvent('auth.login.success', [
             'user_id' => $event->user->getAuthIdentifier(),
-            'email' => $event->user->email ?? null,
+            'email' => $event->user->getAuthIdentifierName() ?? null,
         ]);
     }
 
     public function handleLoginFailed(Failed $event): void
     {
         $this->logger->logSecurityEvent('auth.login.failed', [
-            'email' => $event->credentials['email'] ?? null,
+            'email' => $event->credentials->email ?? null,
         ]);
     }
     public function handleTwoFactorEnabled(TwoFactorEnabled $event): void
     {
         $this->logger->logSecurityEvent('auth.2fa.enabled', [
-            'user_id' => $event->userId
+            'user_id' => $event->getUserId()
         ]);
     }
 
     public function handleTwoFactorDisabled(TwoFactorDisabled $event): void
     {
         $this->logger->logSecurityEvent('auth.2fa.disabled', [
-            'user_id' => $event->userId
+            'user_id' => $event->getUserId()
         ]);
     }
 
     public function handlePasswordReset(PasswordResetCompleted $event): void
     {
         $this->logger->logSecurityEvent('auth.password.reset', [
-            'user_id' => $event->userId,
-            'email'   => $event->email
+            'user_id' => $event->getUserId(),
+            'email'   => $event->getEmail()
         ]);
     }
 

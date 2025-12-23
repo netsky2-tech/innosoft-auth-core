@@ -35,7 +35,7 @@ test('disabling 2fa creates a security audit log', function () {
 
     // 2. Act
     $this->actingAs($user)
-        ->deleteJson('/api/auth/two-factor', [
+        ->deleteJson('/api/v1/auth/two-factor/disable', [
             'current_password' => 'password'
         ])
         ->assertSuccessful();

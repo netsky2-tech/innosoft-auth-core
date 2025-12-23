@@ -14,7 +14,7 @@ use InnoSoft\AuthCore\UI\Http\Controllers\UserController;
 |
 */
 
-Route::prefix('v1')->name('api.v1.')->group(function () {
+Route::prefix('api/v1')->name('api.v1.')->group(function () {
 
     // ========================================================================
     // 🔓 PUBLIC AUTHENTICATION ROUTES (Guest)

@@ -1,8 +1,9 @@
 <?php
 
 namespace InnoSoft\AuthCore\Domain\Users\Exceptions;
-use Exception;
-class InvalidCredentialsException extends Exception
+use InnoSoft\AuthCore\Domain\Shared\DomainException;
+
+class InvalidCredentialsException extends DomainException
 {
     public function __construct()
     {

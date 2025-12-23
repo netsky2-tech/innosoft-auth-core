@@ -11,17 +11,22 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use InnoSoft\AuthCore\Application\Listeners\LogSecurityEvents;
+use InnoSoft\AuthCore\Application\Listeners\SendEmailChangeAlerts;
 use InnoSoft\AuthCore\Domain\Auth\Services\PasswordTokenService;
 use InnoSoft\AuthCore\Domain\Auth\Services\TokenIssuer;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorChallengeService;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorProvider;
 use InnoSoft\AuthCore\Domain\Roles\RoleRepository;
+use InnoSoft\AuthCore\Domain\Shared\DomainEventBus;
+use InnoSoft\AuthCore\Domain\Shared\HasDomainEvents;
 use InnoSoft\AuthCore\Domain\Shared\Services\AuditLogger;
+use InnoSoft\AuthCore\Domain\Users\Events\UserEmailChanged;
 use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 use InnoSoft\AuthCore\Infrastructure\Auth\CacheTwoFactorChallengeService;
 use InnoSoft\AuthCore\Infrastructure\Auth\GoogleTwoFactorProvider;
 use InnoSoft\AuthCore\Infrastructure\Auth\LaravelPasswordTokenService;
 use InnoSoft\AuthCore\Infrastructure\Auth\SanctumTokenIssuer;
+use InnoSoft\AuthCore\Infrastructure\Bus\Event\LaravelEventBus;
 use InnoSoft\AuthCore\Infrastructure\Persistence\EloquentUserRepository;
 use InnoSoft\AuthCore\Infrastructure\Persistence\SpatieRoleRepository;
 use InnoSoft\AuthCore\Infrastructure\Services\LaravelAuditLogger;
@@ -57,7 +62,7 @@ class AuthCoreServiceProvider extends ServiceProvider
         $this->app->bind(AuditLogger::class, LaravelAuditLogger::class);
         $this->app->bind(RoleRepository::class, SpatieRoleRepository::class);
 
-        Event::subscribe(LogSecurityEvents::class);
+        $this->app->bind(DomainEventBus::class, LaravelEventBus::class);
     }
 
     /**
@@ -103,6 +108,20 @@ class AuthCoreServiceProvider extends ServiceProvider
                 ? $rule->mixedCase()->numbers()->symbols()->uncompromised()
                 : $rule;
         });
+
+        // ============================================================
+        // 🚀 REGISTRO DE EVENTOS DEL PAQUETE
+        // ============================================================
+
+        // Sync Subscriber
+        Event::subscribe(LogSecurityEvents::class);
+
+        // Async Listener
+        /*Event::listen(
+            UserEmailChanged::class,
+            SendEmailChangeAlerts::class
+        );*/
+
     }
 
     protected function registerSuperAdminGate(): void

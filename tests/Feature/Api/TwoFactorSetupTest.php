@@ -11,7 +11,7 @@ test('authenticated user can initiate 2fa setup', function () {
 
     // Act
     $response = $this->actingAs($user)
-        ->postJson('/api/auth/two-factor/enable');
+        ->postJson('/api/v1/auth/two-factor/enable');
 
     // Assert
     $response->assertOk()
@@ -43,7 +43,7 @@ test('user can confirm 2fa setup with valid code', function () {
 
     // Act
     $response = $this->actingAs($user)
-        ->postJson('/api/auth/two-factor/confirm', [
+        ->postJson('/api/v1/auth/two-factor/confirm', [
             'code' => '123456'
         ]);
 

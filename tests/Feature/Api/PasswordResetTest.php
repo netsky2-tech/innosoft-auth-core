@@ -15,7 +15,7 @@ test('user can request password reset link', function () {
         'password' => 'hash'
     ]);
 
-    $response = $this->postJson('/api/auth/forgot-password', ['email' => 'reset@innosoft.com']);
+    $response = $this->postJson('/api/v1/auth/forgot-password', ['email' => 'reset@innosoft.com']);
 
     $response->assertOk()
         ->assertJson(['message' => 'If your email is registered, you will receive a reset link.']);
@@ -34,7 +34,7 @@ test('user can reset password with valid token', function () {
     $token = Password::createToken($user);
 
     // Act
-    $response = $this->postJson('/api/auth/reset-password', [
+    $response = $this->postJson('/api/v1/auth/reset-password', [
         'email' => 'reset2@innosoft.com',
         'token' => $token,
         'password' => 'NewSecurePass1!',

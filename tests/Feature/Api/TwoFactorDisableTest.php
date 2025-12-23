@@ -16,7 +16,7 @@ test('user can disable two factor authentication with valid password', function 
 
     // 2. Act
     $response = $this->actingAs($user)
-        ->deleteJson('/api/auth/two-factor', [
+        ->deleteJson('/api/v1/auth/two-factor/disable', [
             'current_password' => 'MySecurePassword!'
         ]);
 
@@ -48,7 +48,7 @@ test('user cannot disable two factor with incorrect password', function () {
 
     // 2. Act
     $response = $this->actingAs($user)
-        ->deleteJson('/api/auth/two-factor', [
+        ->deleteJson('/api/v1/auth/two-factor/disable', [
             'current_password' => 'WrongPassword'
         ]);
 

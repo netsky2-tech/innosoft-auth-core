@@ -10,10 +10,4 @@ final readonly class DeleteUserCommand
         public string $userId
     ) {}
 
-    public static function fromRequest(DeleteUserRequest $request): self
-    {
-        return new self(
-            userId: $request->validated('id'),
-        );
-    }
 }

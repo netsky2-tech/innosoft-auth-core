@@ -2,19 +2,34 @@
 
 namespace InnoSoft\AuthCore\Domain\Shared;
 
+
 trait HasDomainEvents
 {
-    private array $events = [];
+    /** @var DomainEvent[] */
+    private array $domainEvents = [];
 
-    protected function record(DomainEvent $event): void
+    /**
+     * Registra un evento de dominio para su posterior publicación.
+     *
+     * @param DomainEvent $event
+     * @return void
+     */
+    public function record(DomainEvent $event): void
     {
-        $this->events[] = $event;
+        $this->domainEvents[] = $event;
     }
 
+    /**
+     * Retorna todos los eventos registrados y LIMPIA el array.
+     *
+     * @return DomainEvent[]
+     */
     public function pullDomainEvents(): array
     {
-        $events = $this->events;
-        $this->events = [];
+        $events = $this->domainEvents;
+
+        $this->domainEvents = [];
+
         return $events;
     }
 }

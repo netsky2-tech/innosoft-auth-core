@@ -12,12 +12,4 @@ readonly class CreateUserCommand
         public string $password,
     ) {}
 
-    public static function fromRequest(CreateUserRequest $request): self
-    {
-        return new self(
-            name: $request->validated('name'),
-            email: $request->validated('email'),
-            password: $request->validated('password'),
-        );
-    }
 }

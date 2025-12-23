@@ -2,20 +2,31 @@
 
 namespace InnoSoft\AuthCore\Application\Users\Queries\Handlers;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use InnoSoft\AuthCore\Application\Users\DTOs\UserView;
 use InnoSoft\AuthCore\Application\Users\Queries\GetUserQuery;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User;
+use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
+use InnoSoft\AuthCore\Domain\Users\Exceptions\UserNotFoundException;
+use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 
-final class GetUserQueryHandler
+
+final readonly class GetUserQueryHandler
 {
-    public function __invoke(GetUserQuery $query)
+
+    public function __construct(
+        private UserRepository $userRepository
+    ) {}
+
+    /**
+     * @throws UserNotFoundException
+     */
+    public function __invoke(GetUserQuery $query): UserView
     {
-        $user = User::find($query->userId);
+        $user = $this->userRepository->findById($query->userId);
 
         if (!$user) {
-            throw new ModelNotFoundException("User with ID {$query->userId} not found.");
+            throw new UserNotFoundException("User with ID {$query->userId} not found.");
         }
 
-        return $user;
+        return UserView::fromDomain($user);
     }
 }

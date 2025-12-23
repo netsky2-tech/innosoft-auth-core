@@ -4,12 +4,13 @@ namespace InnoSoft\AuthCore\Domain\Users\Events;
 
 use InnoSoft\AuthCore\Domain\Shared\DomainEvent;
 
-readonly class TwoFactorDisabled implements DomainEvent
+final readonly class PasswordChanged implements DomainEvent
 {
+
     public function __construct(
         private string $userId,
         private \DateTimeImmutable $occurredAt = new \DateTimeImmutable()
-    ) {}
+    ){}
 
     public function getUserId(): string
     {

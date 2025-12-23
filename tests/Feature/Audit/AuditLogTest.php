@@ -20,7 +20,7 @@ test('login action is audited', function () {
     ]);
 
     // 2. Act
-    $this->postJson('/api/auth/login', [
+    $this->postJson('/api/v1/auth/login', [
         'email' => 'audit_me@innosoft.com',
         'password' => 'password'
     ]);

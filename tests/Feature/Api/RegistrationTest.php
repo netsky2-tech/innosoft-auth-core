@@ -9,7 +9,7 @@ test('api can register a new user', function () {
     $admin = $this->createSuperAdmin();
 
     $response = $this->actingAs($admin, 'api')
-        ->postJson('/api/auth/register', [
+        ->postJson('/api/v1/auth/register', [
         'name' => 'API User',
         'email' => 'api@innosoft.com',
         'password' => 'SecurePass123!',
@@ -30,7 +30,7 @@ test('registration fails with invalid data', function () {
     $admin = $this->createSuperAdmin();
 
     $response = $this->actingAs($admin, 'api')
-        ->postJson('/api/auth/register', [
+        ->postJson('/api/v1/auth/register', [
             'email' => 'not-an-email',
             'password' => 'short'
         ]);

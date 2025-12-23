@@ -2,8 +2,8 @@
 
 namespace InnoSoft\AuthCore\Domain\Users\Exceptions;
 
-use InvalidArgumentException;
-class InvalidEmailException extends InvalidArgumentException
+use InnoSoft\AuthCore\Domain\Shared\DomainException;
+class InvalidEmailException extends DomainException
 {
 
 }

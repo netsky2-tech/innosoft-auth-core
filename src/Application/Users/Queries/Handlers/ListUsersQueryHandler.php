@@ -2,22 +2,28 @@
 
 namespace InnoSoft\AuthCore\Application\Users\Queries\Handlers;
 
+use Illuminate\Pagination\LengthAwarePaginator;
+use InnoSoft\AuthCore\Application\Users\DTOs\UserView;
 use InnoSoft\AuthCore\Application\Users\Queries\ListUsersQuery;
+use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User;
 
-class ListUsersQueryHandler
+final readonly class ListUsersQueryHandler
 {
-    public function __invoke(ListUsersQuery $query): \Illuminate\Pagination\LengthAwarePaginator
+    public function __construct(
+        private UserRepository $userRepository
+    ) {}
+    public function __invoke(ListUsersQuery $query): LengthAwarePaginator
     {
-        $builder = User::query();
+        $paginator = $this->userRepository->search(
+            page: $query->page,
+            perPage: $query->perPage,
+            term: $query->search,
+            sortBy: $query->sortBy ?? 'created_at'
+        );
 
-        if ($query->search) {
-            $builder->where('name', 'like', "%{$query->search}%")
-                ->orWhere('email', 'like', "%{$query->search}%");
-        }
+        $paginator->through(fn ($userModel) => UserView::fromDomain($userModel));
 
-        $builder->orderBy($query->sortBy ?? 'name');
-
-        return $builder->paginate($query->perPage, ['*'], 'page', $query->page);
+        return $paginator;
     }
 }
