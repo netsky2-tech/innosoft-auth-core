@@ -6,7 +6,6 @@ namespace InnoSoft\AuthCore\Infrastructure\Persistence;
 use InnoSoft\AuthCore\Domain\Roles\RoleDTO;
 use InnoSoft\AuthCore\Domain\Roles\RoleRepository;
 use Spatie\Permission\Models\Role as SpatieRole;
-use Spatie\Permission\Models\Permission;
 class SpatieRoleRepository implements RoleRepository
 {
 

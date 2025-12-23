@@ -41,8 +41,8 @@ class UserController extends Controller
             // Dispatch the command
             $user = $this->dispatcher->dispatch($command);
 
-            return $this->successResponse(new UserResource($user), 'User successfully created.', 201);
-        });
+            return $this->successResponse(new UserResource($user));
+        },'User successfully created.', 200);
     }
 
     public function update(UpdateUserRequest $request, string $id): JsonResponse
@@ -57,8 +57,8 @@ class UserController extends Controller
 
             $user = $this->dispatcher->dispatch($command);
 
-            return $this->successResponse(new UserResource($user), 'User successfully updated.');
-        });
+            return $this->successResponse(new UserResource($user));
+        }, 'User successfully updated.', 200);
     }
 
     public function destroy(string $id): JsonResponse
@@ -69,8 +69,8 @@ class UserController extends Controller
 
             $this->dispatcher->dispatch($command);
 
-            return $this->successResponse(null, 'User successfully deleted.', 204);
-        });
+            return $this->successResponse(null);
+        }, 'User successfully deleted.', 204);
 
     }
 
@@ -81,8 +81,8 @@ class UserController extends Controller
 
             $user = $this->dispatcher->dispatch($query);
 
-            return $this->successResponse(new UserResource($user), 'User successfully retrieved.');
-        });
+            return $this->successResponse(new UserResource($user));
+        }, 'User successfully retrieved.', 200);
 
     }
 
@@ -100,7 +100,7 @@ class UserController extends Controller
 
             $collection = UserResource::collection($paginator);
 
-            return $this->successResponse($collection->response()->getData(true), 'Users retrieved.');
-        });
+            return $this->successResponse($collection->response()->getData(true));
+        }, 'Users retrieved.', 200);
     }
 }
