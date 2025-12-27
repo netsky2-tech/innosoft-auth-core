@@ -7,7 +7,7 @@ use Illuminate\Auth\Events\Login;
 use InnoSoft\AuthCore\Domain\Shared\Services\AuditLogger;
 use InnoSoft\AuthCore\Domain\Users\Events\PasswordResetCompleted;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorDisabled;
-use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnabled;
+use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnrollmentInitiated;
 use InnoSoft\AuthCore\Domain\Users\Events\UserRegistered;
 
 readonly class LogSecurityEvents
@@ -38,7 +38,7 @@ readonly class LogSecurityEvents
             'email' => $event->credentials->email ?? null,
         ]);
     }
-    public function handleTwoFactorEnabled(TwoFactorEnabled $event): void
+    public function handleTwoFactorEnabled(TwoFactorEnrollmentInitiated $event): void
     {
         $this->logger->logSecurityEvent('auth.2fa.enabled', [
             'user_id' => $event->getUserId()
@@ -66,7 +66,7 @@ readonly class LogSecurityEvents
             UserRegistered::class => 'handleUserRegistered',
             Login::class => 'handleLogin',
             Failed::class => 'handleLoginFailed',
-            TwoFactorEnabled::class => 'handleTwoFactorEnabled',
+            TwoFactorEnrollmentInitiated::class => 'handleTwoFactorEnabled',
             TwoFactorDisabled::class => 'handleTwoFactorDisabled',
             PasswordResetCompleted::class => 'handlePasswordReset',
         ];

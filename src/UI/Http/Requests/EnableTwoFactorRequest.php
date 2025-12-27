@@ -11,7 +11,6 @@ class EnableTwoFactorRequest extends FormRequest
     public function rules(): array
     {
         return [
-
         ];
     }
 }

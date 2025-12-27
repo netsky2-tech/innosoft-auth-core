@@ -7,7 +7,7 @@ use DateTimeInterface;
 use InnoSoft\AuthCore\Domain\Shared\HasDomainEvents;
 use InnoSoft\AuthCore\Domain\Users\Events\PasswordChanged;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorDisabled;
-use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnabled;
+use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnrollmentInitiated;
 use InnoSoft\AuthCore\Domain\Users\Events\UserDeleted;
 use InnoSoft\AuthCore\Domain\Users\Events\UserEmailChanged;
 use InnoSoft\AuthCore\Domain\Users\Events\UserNameChanged;
@@ -98,12 +98,12 @@ class User
         $this->record(new UserEmailChanged($this->id, $newEmail->getValue(), $oldEmail->getValue()));
     }
 
-    public function enableTwoFactor(string $secret): void
+    public function initiateTwoFActorEnrollment(string $encryptedSecret): void
     {
-        $this->twoFactorSecret = $secret;
-        $this->twoFactorConfirmed = null;
+        $this->twoFactorSecret = $encryptedSecret;
+        $this->twoFactorConfirmed = false;
 
-        $this->record(new TwoFactorEnabled($this->id));
+        $this->record(new TwoFactorEnrollmentInitiated($this->id));
     }
     public function disableTwoFactor(): void
     {

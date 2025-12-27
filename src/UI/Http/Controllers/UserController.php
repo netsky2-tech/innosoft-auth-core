@@ -55,9 +55,9 @@ class UserController extends Controller
                 password: $request->validated('password')
             );
 
-            $user = $this->dispatcher->dispatch($command);
+            return $this->dispatcher->dispatch($command);
 
-            return $this->successResponse(new UserResource($user));
+            //return $this->successResponse(new UserResource($user));
         }, 'User successfully updated.', 200);
     }
 

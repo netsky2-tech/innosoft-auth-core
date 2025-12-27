@@ -5,11 +5,15 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
+use InnoSoft\AuthCore\Application\Auth\Commands\EnableTwoFactorCommand;
+use InnoSoft\AuthCore\Application\Auth\Handlers\EnableTwoFactorHandler;
 use InnoSoft\AuthCore\Application\Listeners\LogSecurityEvents;
 use InnoSoft\AuthCore\Application\Listeners\SendEmailChangeAlerts;
 use InnoSoft\AuthCore\Domain\Auth\Services\PasswordTokenService;
@@ -35,6 +39,7 @@ use InnoSoft\AuthCore\UI\Http\Middleware\CheckPermissionMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
+use Symfony\Component\Finder\Finder;
 
 class AuthCoreServiceProvider extends ServiceProvider
 {
@@ -70,6 +75,9 @@ class AuthCoreServiceProvider extends ServiceProvider
      */
     public function boot(Router $router): void
     {
+        // biding commands / handlers
+        $this->registerCommands();
+
         // Gate global (super admin)
         $this->registerSuperAdminGate();
 
@@ -143,5 +151,78 @@ class AuthCoreServiceProvider extends ServiceProvider
         RateLimiter::for('auth-core.login', function (Request $request) {
             return Limit::perMinute(5)->by($request->ip());
         });
+    }
+
+    protected function registerCommands(): void
+    {
+        $map = [];
+        $basePath = __DIR__ . '/Application';
+        $baseNamespace = 'InnoSoft\\AuthCore\\Application\\';
+
+        // 1. Definimos los módulos que queremos escanear
+        $modules = ['Auth', 'Roles', 'Users'];
+
+        foreach ($modules as $module) {
+            // Rutas a escanear
+            $commandPath = "$basePath/$module/Commands";
+            $queryPath   = "$basePath/$module/Queries";
+
+            // A. Escanear Comandos
+            if (is_dir($commandPath)) {
+                $map = array_merge($map, $this->discoverHandlers(
+                    path: $commandPath,
+                    namespace: "{$baseNamespace}{$module}\\Commands",
+                    handlerNamespace: "{$baseNamespace}{$module}\\Handlers",
+                    type: 'Command'
+                ));
+            }
+
+            // B. Escanear Queries (Opcional, si usas Bus para queries también)
+            if (is_dir($queryPath)) {
+                // Nota: Ajusta 'Handlers' si tus QueryHandlers están en Application/Module/Queries/Handlers
+                // Basado en tu árbol, parece que están en Users/Queries/Handlers
+                $map = array_merge($map, $this->discoverHandlers(
+                    path: $queryPath,
+                    namespace: "{$baseNamespace}{$module}\\Queries",
+                    handlerNamespace: "{$baseNamespace}{$module}\\Queries\\Handlers",
+                    type: 'Query'
+                ));
+            }
+        }
+
+        // Registrar todo el mapa de una sola vez
+        Bus::map($map);
+    }
+
+    /**
+     * Helper para encontrar y emparejar Clases con sus Handlers
+     */
+    private function discoverHandlers(string $path, string $namespace, string $handlerNamespace, string $type): array
+    {
+        $map = [];
+        $files = (new Finder())->in($path)->files()->name('*.php');
+
+        foreach ($files as $file) {
+            $className = $file->getBasename('.php');
+            $commandClass = "$namespace\\$className";
+
+            // Convención: CreateUserCommand -> CreateUserHandler
+            // Lógica: Reemplazamos el sufijo 'Command' o 'Query' por 'Handler'
+
+            // Caso 1: Si tus archivos se llaman "CreateUserCommand" y el handler "CreateUserHandler"
+            $handlerName = Str::replaceLast($type, 'Handler', $className);
+
+            // Caso 2: Si tu Query Handler está en subcarpeta (como vi en tu árbol Users/Queries/Handlers)
+            // El namespace ya lo pasamos ajustado arriba.
+
+            $handlerClass = "$handlerNamespace\\$handlerName";
+
+            // Verificar si ambas clases existen para evitar errores 500
+            if (class_exists($commandClass) && class_exists($handlerClass)) {
+                $map[$commandClass] = $handlerClass;
+            }
+        }
+
+        return $map;
     }
 }

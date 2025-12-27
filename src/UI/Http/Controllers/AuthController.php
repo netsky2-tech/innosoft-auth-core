@@ -2,16 +2,16 @@
 
 namespace InnoSoft\AuthCore\UI\Http\Controllers;
 
+use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
-use Illuminate\Validation\ValidationException;
+use InnoSoft\AuthCore\Application\Auth\Commands\EnableTwoFactorCommand;
 use InnoSoft\AuthCore\Application\Auth\Commands\LoginUserCommand;
 use InnoSoft\AuthCore\Application\Auth\Commands\RegisterUserCommand;
 use InnoSoft\AuthCore\Application\Auth\Commands\RequestPasswordResetCommand;
 use InnoSoft\AuthCore\Application\Auth\Commands\ResetPasswordCommand;
 use InnoSoft\AuthCore\Application\Auth\Handlers\ConfirmTwoFactorHandler;
 use InnoSoft\AuthCore\Application\Auth\Handlers\DisableTwoFactorHandler;
-use InnoSoft\AuthCore\Application\Auth\Handlers\EnableTwoFactorHandler;
 use InnoSoft\AuthCore\Application\Auth\Handlers\LoginUserHandler;
 use InnoSoft\AuthCore\Application\Auth\Handlers\RegisterUserHandler;
 use InnoSoft\AuthCore\Application\Auth\Handlers\RequestPasswordResetHandler;
@@ -20,7 +20,6 @@ use InnoSoft\AuthCore\Application\Auth\Handlers\VerifyTwoFactorLoginHandler;
 use InnoSoft\AuthCore\Domain\Auth\Exceptions\TwoFactorRequiredException;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorChallengeService;
 use InnoSoft\AuthCore\Domain\Users\Exceptions\InvalidCredentialsException;
-use InnoSoft\AuthCore\Domain\Users\Exceptions\UserAlreadyExistsException;
 use InnoSoft\AuthCore\UI\Http\Requests\ConfirmTwoFactorRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\DisableTwoFactorRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\EnableTwoFactorRequest;
@@ -35,7 +34,10 @@ use InnoSoft\AuthCore\UI\Http\Traits\HandlesApiExecution;
 class AuthController extends Controller
 {
     use HandlesApiExecution, ApiResponse;
-    public function __construct(private readonly TwoFactorChallengeService $challengeService)
+    public function __construct(
+        private readonly TwoFactorChallengeService $challengeService,
+        private readonly Dispatcher $dispatcher,
+    )
     {}
 
     /**
@@ -120,10 +122,14 @@ class AuthController extends Controller
         }, 'Two factor authentication has been verified.', 200);
     }
 
-    public function enableTwoFactor(EnableTwoFactorRequest $request, EnableTwoFactorHandler $handler): JsonResponse
+    public function enableTwoFactor(EnableTwoFactorRequest $request): JsonResponse
     {
-        return $this->safeExecute(function () use ($request, $handler) {
-            return $handler->handle($request->user()->id);
+        return $this->safeExecute(function () use ($request) {
+
+            $command = new EnableTwoFactorCommand($request->user()->id);
+
+            return $this->dispatcher->dispatch($command);
+
         }, 'Two factor authentication has been enabled.', 200);
     }
 
@@ -132,7 +138,9 @@ class AuthController extends Controller
     public function confirmTwoFactor(ConfirmTwoFactorRequest $request, ConfirmTwoFactorHandler $handler): JsonResponse
     {
         return $this->safeExecute(function () use ($request, $handler) {
+
             return $handler->handle($request->user()->id, $request->validated('code'));
+
         }, 'Two factor authentication has been verified.', 200);
     }
 
