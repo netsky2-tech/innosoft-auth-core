@@ -4,6 +4,7 @@ namespace InnoSoft\AuthCore\Application\Auth\Handlers;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use InnoSoft\AuthCore\Application\Auth\Commands\DisableTwoFactorCommand;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorDisabled;
 use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 
@@ -16,12 +17,12 @@ final readonly class DisableTwoFactorHandler
     /**
      * @throws ValidationException
      */
-    public function handle(string $userId, string $currentPassword): void
+    public function handle(DisableTwoFactorCommand $command): void
     {
-        $user = $this->userRepository->findById($userId);
+        $user = $this->userRepository->findById($command->userId);
 
         // 1. Validate actual password
-        if (!Hash::check($currentPassword, $user->getPasswordHash())) {
+        if (!Hash::check($command->currentPassword, $user->getPasswordHash())) {
             throw ValidationException::withMessages([
                 'current_password' => 'The provided password does not match your current password.'
             ]);
@@ -34,6 +35,6 @@ final readonly class DisableTwoFactorHandler
         $this->userRepository->save($user);
 
         // 4. Event
-        event(new TwoFactorDisabled($userId));
+        event(new TwoFactorDisabled($command->userId));
     }
 }

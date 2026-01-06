@@ -2,6 +2,7 @@
 
 namespace InnoSoft\AuthCore\Application\Auth\Handlers;
 
+use InnoSoft\AuthCore\Application\Auth\Commands\VerifyTwoFactorLoginCommand;
 use InnoSoft\AuthCore\Domain\Auth\Services\TokenIssuer;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorChallengeService;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorProvider;
@@ -20,10 +21,10 @@ readonly class VerifyTwoFactorLoginHandler
     /**
      * @throws InvalidCredentialsException
      */
-    public function handle(string $challengeToken, string $code, string $device): array
+    public function handle(VerifyTwoFactorLoginCommand $command): array
     {
         // 1. Validate challenge
-        $userId = $this->challengeService->verifyChallenge($challengeToken);
+        $userId = $this->challengeService->verifyChallenge($command->challengeToken);
         if (!$userId) {
             throw new InvalidCredentialsException();
         }
@@ -31,12 +32,12 @@ readonly class VerifyTwoFactorLoginHandler
         $user = $this->userRepository->findById($userId);
 
         // 2. Validate TOTP
-        if (!$this->twoFactorProvider->verify($user->getTwoFactorSecret(), $code)) {
+        if (!$this->twoFactorProvider->verify($user->getTwoFactorSecret(), $command->code)) {
             throw new InvalidCredentialsException();
         }
 
         // 3. Emit final token
-        $token = $this->tokenIssuer->issue($user, $device);
+        $token = $this->tokenIssuer->issue($user, $command->deviceName);
 
         return ['access_token' => $token];
     }

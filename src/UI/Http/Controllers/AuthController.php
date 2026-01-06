@@ -5,21 +5,16 @@ namespace InnoSoft\AuthCore\UI\Http\Controllers;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
+use InnoSoft\AuthCore\Application\Auth\Commands\ConfirmTwoFactorCommand;
+use InnoSoft\AuthCore\Application\Auth\Commands\DisableTwoFactorCommand;
 use InnoSoft\AuthCore\Application\Auth\Commands\EnableTwoFactorCommand;
 use InnoSoft\AuthCore\Application\Auth\Commands\LoginUserCommand;
 use InnoSoft\AuthCore\Application\Auth\Commands\RegisterUserCommand;
 use InnoSoft\AuthCore\Application\Auth\Commands\RequestPasswordResetCommand;
 use InnoSoft\AuthCore\Application\Auth\Commands\ResetPasswordCommand;
-use InnoSoft\AuthCore\Application\Auth\Handlers\ConfirmTwoFactorHandler;
-use InnoSoft\AuthCore\Application\Auth\Handlers\DisableTwoFactorHandler;
-use InnoSoft\AuthCore\Application\Auth\Handlers\LoginUserHandler;
-use InnoSoft\AuthCore\Application\Auth\Handlers\RegisterUserHandler;
-use InnoSoft\AuthCore\Application\Auth\Handlers\RequestPasswordResetHandler;
-use InnoSoft\AuthCore\Application\Auth\Handlers\ResetPasswordHandler;
-use InnoSoft\AuthCore\Application\Auth\Handlers\VerifyTwoFactorLoginHandler;
+use InnoSoft\AuthCore\Application\Auth\Commands\VerifyTwoFactorLoginCommand;
 use InnoSoft\AuthCore\Domain\Auth\Exceptions\TwoFactorRequiredException;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorChallengeService;
-use InnoSoft\AuthCore\Domain\Users\Exceptions\InvalidCredentialsException;
 use InnoSoft\AuthCore\UI\Http\Requests\ConfirmTwoFactorRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\DisableTwoFactorRequest;
 use InnoSoft\AuthCore\UI\Http\Requests\EnableTwoFactorRequest;
@@ -34,42 +29,53 @@ use InnoSoft\AuthCore\UI\Http\Traits\HandlesApiExecution;
 class AuthController extends Controller
 {
     use HandlesApiExecution, ApiResponse;
+
     public function __construct(
         private readonly TwoFactorChallengeService $challengeService,
-        private readonly Dispatcher $dispatcher,
+        private readonly Dispatcher                $dispatcher,
     )
-    {}
+    {
+    }
 
     /**
+     * Handles new user registration.
+     * Dispatches command to create user entity and hash password.
      */
-    public function register(CreateUserRequest $request, RegisterUserHandler $handler): JsonResponse
+    public function register(CreateUserRequest $request): JsonResponse
     {
-        return $this->safeExecute(function () use ($request, $handler) {
+        return $this->safeExecute(function () use ($request) {
 
-            // Mapping Request -> Command
             $command = new RegisterUserCommand(
                 name: $request->validated('name'),
                 email: $request->validated('email'),
                 password: $request->validated('password')
             );
 
-            // Execution
-            $handler->handle($command);
+            $this->dispatcher->dispatch($command);
 
         }, 'User registered successfully.', 201);
 
     }
 
-    public function login(LoginRequest $request, LoginUserHandler $handler): JsonResponse
+    /**
+     * Authenticates a user.
+     * If 2FA is enabled for the user, intercepts the flow and returns a challenge token
+     * instead of an access token.
+     */
+    public function login(LoginRequest $request): JsonResponse
     {
-        return $this->safeExecute(function () use ($request, $handler) {
+        return $this->safeExecute(function () use ($request) {
             try {
-                return $handler->handle(new LoginUserCommand(
+                $command = new LoginUserCommand(
                     email: $request->validated('email'),
                     password: $request->validated('password'),
                     deviceName: $request->device_name ?? 'unknown'
-                ));
+                );
+
+                return $this->dispatcher->dispatch($command);
+
             } catch (TwoFactorRequiredException $e) {
+                // Intercept login to enforce 2FA flow
                 $challengeToken = $this->challengeService->createChallenge($e->userId);
 
                 return $this->twoFactorRequiredResponse($challengeToken, 300);
@@ -77,51 +83,63 @@ class AuthController extends Controller
         }, 'Logged in successfully', 200);
     }
 
-    public function forgotPassword(ForgotPasswordRequest $request, RequestPasswordResetHandler $handler): JsonResponse
+    /**
+     * Initiates the password reset process by sending an email with a reset link.
+     */
+    public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
-        return $this->safeExecute(function () use ($request, $handler) {
+        return $this->safeExecute(function () use ($request) {
 
-            $handler->handle(new RequestPasswordResetCommand($request->validated('email')));
+            $command = new RequestPasswordResetCommand($request->validated('email'));
 
-        },'If your email is registered, you will receive a reset link.', 200);
+            $this->dispatcher->dispatch($command);
+
+        }, 'If your email is registered, you will receive a reset link.', 200);
     }
 
-    public function resetPassword(ResetPasswordRequest $request, ResetPasswordHandler $handler): JsonResponse
+    /**
+     * Completes the password reset process using the token from the email.
+     */
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
     {
-        return $this->safeExecute(function () use ($request, $handler) {
-            try {
-                return $handler->handle(new ResetPasswordCommand(
-                    $request->validated('email'),
-                    $request->validated('token'),
-                    $request->validated('password')
-                ));
-            } catch (\Exception $e) {
-                return $this->errorResponse('An error occurred', $e->getCode(), 'EXCEPTION', $e->getMessage());
-            }
-        },'Password has been reset successfully', 200);
+        return $this->safeExecute(function () use ($request) {
+
+            $command = new ResetPasswordCommand(
+                $request->validated('email'),
+                $request->validated('token'),
+                $request->validated('password')
+            );
+
+            return $this->dispatcher->dispatch($command);
+
+        }, 'Password has been reset successfully', 200);
 
     }
 
-    public function verifyTwoFactor(VerifyTwoFactorRequest $request, VerifyTwoFactorLoginHandler $handler): JsonResponse
+    /**
+     * Completes the login process for users with 2FA enabled.
+     * Exchanges a valid challenge token and TOTP code for an access token.
+     */
+    public function verifyTwoFactor(VerifyTwoFactorRequest $request): JsonResponse
     {
-        return $this->safeExecute(function () use ($request, $handler) {
-            try {
-                return $handler->handle(
-                    $request->validated('challenge_token'),
-                    $request->validated('code'),
-                    $request->validated('device_name')
-                );
-            } catch (InvalidCredentialsException $e) {
-                return $this->errorResponse(
-                    'Invalid credentials',
-                    $e->getCode(),
-                    'EXCEPTION',
-                    $e->getMessage());
+        return $this->safeExecute(function () use ($request) {
 
-            }
+            $command = new VerifyTwoFactorLoginCommand(
+                challengeToken: $request->validated('challenge_token'),
+                code: $request->validated('code'),
+                deviceName: $request->validated('device_name')
+            );
+
+            return $this->dispatcher->dispatch($command);
+
+
         }, 'Two factor authentication has been verified.', 200);
     }
 
+    /**
+     * Starts the 2FA enrollment process.
+     * Generates a secret key and QR code data, but does not activate 2FA yet.
+     */
     public function enableTwoFactor(EnableTwoFactorRequest $request): JsonResponse
     {
         return $this->safeExecute(function () use ($request) {
@@ -134,23 +152,38 @@ class AuthController extends Controller
     }
 
     /**
+     * Finalizes 2FA enrollment.
+     * Verifies the first code generated by the user's app and activates 2FA on the account.
      */
-    public function confirmTwoFactor(ConfirmTwoFactorRequest $request, ConfirmTwoFactorHandler $handler): JsonResponse
+    public function confirmTwoFactor(ConfirmTwoFactorRequest $request): JsonResponse
     {
-        return $this->safeExecute(function () use ($request, $handler) {
+        return $this->safeExecute(function () use ($request) {
 
-            return $handler->handle($request->user()->id, $request->validated('code'));
+            $command = new ConfirmTwoFactorCommand(
+                userId: $request->user()->id,
+                code: $request->validated('code')
+            );
+
+            return $this->dispatcher->dispatch($command);
 
         }, 'Two factor authentication has been verified.', 200);
     }
 
     /**
+     * Disables 2FA for the user.
+     * Requires current password verification to prevent unauthorized removal.
      */
-    public function disableTwoFactor(DisableTwoFactorRequest $request, DisableTwoFactorHandler $handler): JsonResponse
+    public function disableTwoFactor(DisableTwoFactorRequest $request): JsonResponse
     {
-        return $this->safeExecute(function () use ($request, $handler) {
-            return $handler->handle($request->user()->id, $request->validated('current_password'));
+        return $this->safeExecute(function () use ($request) {
 
-        },'Two factor authentication disabled successfully.', 200);
+            $command = new DisableTwoFactorCommand(
+                userId: $request->user()->id,
+                currentPassword: $request->validated('current_password')
+            );
+
+            return $this->dispatcher->dispatch($command);
+
+        }, 'Two factor authentication disabled successfully.', 200);
     }
 }

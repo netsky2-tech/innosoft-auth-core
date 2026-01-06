@@ -21,6 +21,7 @@ readonly class EnableTwoFactorHandler
 
     /**
      * @throws UserNotFoundException
+     * @throws \Throwable
      */
     public function __invoke(EnableTwoFactorCommand $command): array
     {

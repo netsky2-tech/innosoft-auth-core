@@ -29,6 +29,10 @@ class UserController extends Controller
         $this->middleware('permission:users.delete')->only(['destroy']);
     }
 
+    /**
+     * Creates a new user in the system.
+     * Dispatches a command to handle user creation logic including password hashing.
+     */
     public function store(CreateUserRequest $request): JsonResponse
     {
         return $this->safeExecute(function () use ($request) {
@@ -45,6 +49,10 @@ class UserController extends Controller
         },'User successfully created.', 200);
     }
 
+    /**
+     * Updates an existing user's information.
+     * Handles partial updates for name, email, or password via the command handler.
+     */
     public function update(UpdateUserRequest $request, string $id): JsonResponse
     {
         return $this->safeExecute(function () use ($request, $id) {
@@ -61,6 +69,10 @@ class UserController extends Controller
         }, 'User successfully updated.', 200);
     }
 
+    /**
+     * Permanently removes a user from the system.
+     * This action is irreversible and triggers domain events for user deletion.
+     */
     public function destroy(string $id): JsonResponse
     {
         return $this->safeExecute(function () use ($id) {
@@ -69,11 +81,15 @@ class UserController extends Controller
 
             $this->dispatcher->dispatch($command);
 
-            return $this->successResponse(null);
+            return $this->successResponse();
         }, 'User successfully deleted.', 204);
 
     }
 
+    /**
+     * Retrieves detailed information for a specific user.
+     * Uses a query object to fetch read-optimized data.
+     */
     public function show(string $id): JsonResponse
     {
         return $this->safeExecute(function () use ($id) {
@@ -86,6 +102,10 @@ class UserController extends Controller
 
     }
 
+    /**
+     * Lists users with pagination, sorting, and filtering.
+     * Optimized for data grids and administrative views.
+     */
     public function index(ListUsersRequest $request): JsonResponse
     {
         return $this->safeExecute(function () use ($request) {

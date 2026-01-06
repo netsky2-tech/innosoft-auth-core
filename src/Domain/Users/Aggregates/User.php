@@ -7,6 +7,7 @@ use DateTimeInterface;
 use InnoSoft\AuthCore\Domain\Shared\HasDomainEvents;
 use InnoSoft\AuthCore\Domain\Users\Events\PasswordChanged;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorDisabled;
+use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnrollmentConfirmed;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnrollmentInitiated;
 use InnoSoft\AuthCore\Domain\Users\Events\UserDeleted;
 use InnoSoft\AuthCore\Domain\Users\Events\UserEmailChanged;
@@ -114,6 +115,19 @@ class User
         $this->record(new TwoFactorDisabled($this->id));
     }
 
+    /**
+     * Completes the 2FA enrollment process.
+     */
+    public function completeTwoFactorEnrollment(array $recoveryCodes): void
+    {
+        $this->twoFactorConfirmed = true;
+        $this->twoFactorRecoveryCodes = $recoveryCodes;
+
+        $this->record(new TwoFactorEnrollmentConfirmed(
+            $this->id,
+        ));
+
+    }
     public function confirmTwoFactor(): void
     {
         $this->twoFactorConfirmed = true;

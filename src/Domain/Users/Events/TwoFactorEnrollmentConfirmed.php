@@ -3,7 +3,8 @@
 namespace InnoSoft\AuthCore\Domain\Users\Events;
 
 use InnoSoft\AuthCore\Domain\Shared\DomainEvent;
-readonly class TwoFactorEnrollmentInitiated implements DomainEvent
+
+readonly class TwoFactorEnrollmentConfirmed implements DomainEvent
 {
     public function __construct(
         private string $userId,
