@@ -21,7 +21,8 @@ class SanctumTokenIssuer implements TokenIssuer
 
         // Use Sanctum to generate token
         // get expiration from config
-        $expiration = now()->addMinutes(config('auth-core.token_expiration', 1440));
+        $expirationMinutes = config('auth-core.token_expiration', 1440);
+        $expiration = now()->addMinutes($expirationMinutes);
 
         $token = $eloquentUser->createToken(
             name: $deviceName,

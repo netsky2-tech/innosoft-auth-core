@@ -2,6 +2,7 @@
 
 namespace InnoSoft\AuthCore\Application\Auth\Handlers;
 
+use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
@@ -27,8 +28,30 @@ final readonly class LoginUserHandler
     {
         $user = $this->userRepository->findByEmail($command->email);
 
-        // Fail fast: if user not exists or wrong password
-        if (!$user || !Hash::check($command->password, $user->getPasswordHash())) {
+        // 1. Timing Attack Protection & Fail Fast
+        // Always perform hash check to prevent timing analysis
+        // If user is null, we hash a dummy string to simulate the same time cost
+        $targetHash = $user ? $user->getPasswordHash() : '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'; // Dummy hash
+        
+        if (!Hash::check($command->password, $targetHash)) {
+            // 2. Missing Failed Event
+            // Dispatch Failed event for auditing and rate limiting (e.g. Fail2Ban)
+            Event::dispatch(new Failed(
+                'sanctum',
+                $user ? $this->userRepository->findAuthenticatableById($user->getId()) : null,
+                ['email' => $command->email]
+            ));
+            
+            throw new InvalidCredentialsException();
+        }
+        
+        // If user was null but hash check "passed" (impossible in practice but good for logic flow)
+        if (!$user) {
+             Event::dispatch(new Failed(
+                'sanctum',
+                null,
+                ['email' => $command->email]
+            ));
             throw new InvalidCredentialsException();
         }
 
@@ -36,6 +59,10 @@ final readonly class LoginUserHandler
             throw new TwoFactorRequiredException($user->getId());
         }
 
+        // 3. Eloquent Leak Fix
+        // We still need the Authenticatable for the Login event, but we should ensure
+        // we are not leaking it out of this handler or using it for business logic.
+        // The repository method findAuthenticatableById is acceptable here solely for framework integration.
         $eloquentUser = $this->userRepository->findAuthenticatableById($user->getId());
         if ($eloquentUser) {
             Event::dispatch(new Login(

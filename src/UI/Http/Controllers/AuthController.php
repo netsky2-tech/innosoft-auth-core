@@ -4,15 +4,20 @@ namespace InnoSoft\AuthCore\UI\Http\Controllers;
 
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use InnoSoft\AuthCore\Application\Auth\Commands\ConfirmTwoFactorCommand;
 use InnoSoft\AuthCore\Application\Auth\Commands\DisableTwoFactorCommand;
 use InnoSoft\AuthCore\Application\Auth\Commands\EnableTwoFactorCommand;
 use InnoSoft\AuthCore\Application\Auth\Commands\LoginUserCommand;
+use InnoSoft\AuthCore\Application\Auth\Commands\LogoutUserCommand;
 use InnoSoft\AuthCore\Application\Auth\Commands\RegisterUserCommand;
 use InnoSoft\AuthCore\Application\Auth\Commands\RequestPasswordResetCommand;
 use InnoSoft\AuthCore\Application\Auth\Commands\ResetPasswordCommand;
+use InnoSoft\AuthCore\Application\Auth\Commands\RevokeOtherSessionsCommand;
+use InnoSoft\AuthCore\Application\Auth\Commands\RevokeUserSessionCommand;
 use InnoSoft\AuthCore\Application\Auth\Commands\VerifyTwoFactorLoginCommand;
+use InnoSoft\AuthCore\Application\Auth\Queries\ListUserSessionsQuery;
 use InnoSoft\AuthCore\Domain\Auth\Exceptions\TwoFactorRequiredException;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorChallengeService;
 use InnoSoft\AuthCore\UI\Http\Requests\ConfirmTwoFactorRequest;
@@ -81,6 +86,21 @@ class AuthController extends Controller
                 return $this->twoFactorRequiredResponse($challengeToken, 300);
             }
         }, 'Logged in successfully', 200);
+    }
+
+    /**
+     * Logs out the current user by revoking the access token used for the request.
+     */
+    public function logout(Request $request): JsonResponse
+    {
+        return $this->safeExecute(function () use ($request) {
+            $command = new LogoutUserCommand(
+                userId: $request->user()->id,
+                sessionId: $request->user()->currentAccessToken()->id
+            );
+
+            $this->dispatcher->dispatch($command);
+        }, 'Logged out successfully.', 200);
     }
 
     /**
@@ -185,5 +205,50 @@ class AuthController extends Controller
             return $this->dispatcher->dispatch($command);
 
         }, 'Two factor authentication disabled successfully.', 200);
+    }
+
+    /**
+     * Lists all active sessions (devices) for the current user.
+     */
+    public function getSessions(Request $request): JsonResponse
+    {
+        return $this->safeExecute(function () use ($request) {
+            $query = new ListUserSessionsQuery(
+                userId: $request->user()->id,
+                currentTokenId: $request->user()->currentAccessToken()->id
+            );
+
+            return $this->dispatcher->dispatch($query);
+        }, 'Active sessions retrieved.', 200);
+    }
+
+    /**
+     * Revokes a specific session by its ID.
+     */
+    public function revokeSession(Request $request, string $sessionId): JsonResponse
+    {
+        return $this->safeExecute(function () use ($request, $sessionId) {
+            $command = new RevokeUserSessionCommand(
+                userId: $request->user()->id,
+                sessionId: $sessionId
+            );
+
+            $this->dispatcher->dispatch($command);
+        }, 'Session revoked successfully.', 200);
+    }
+
+    /**
+     * Revokes all sessions except the current one.
+     */
+    public function revokeOtherSessions(Request $request): JsonResponse
+    {
+        return $this->safeExecute(function () use ($request) {
+            $command = new RevokeOtherSessionsCommand(
+                userId: $request->user()->id,
+                currentTokenId: $request->user()->currentAccessToken()->id
+            );
+
+            $this->dispatcher->dispatch($command);
+        }, 'All other sessions have been revoked.', 200);
     }
 }

@@ -39,11 +39,21 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
 
+        // Logout
+        Route::post('auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
+
         // 2FA Management (User Context)
         Route::prefix('auth/two-factor')->name('auth.two-factor.')->group(function () {
             Route::post('enable', [AuthController::class, 'enableTwoFactor'])->name('enable');
             Route::post('confirm', [AuthController::class, 'confirmTwoFactor'])->name('confirm');
             Route::delete('disable', [AuthController::class, 'disableTwoFactor'])->name('disable');
+        });
+
+        // Device / Session Management
+        Route::prefix('auth/sessions')->name('auth.sessions.')->group(function () {
+            Route::get('/', [AuthController::class, 'getSessions'])->name('index');
+            Route::delete('/other', [AuthController::class, 'revokeOtherSessions'])->name('revoke-others');
+            Route::delete('/{sessionId}', [AuthController::class, 'revokeSession'])->name('revoke');
         });
 
         // --- User Management (Admin/Self) ---

@@ -16,6 +16,7 @@ use InnoSoft\AuthCore\Application\Auth\Commands\EnableTwoFactorCommand;
 use InnoSoft\AuthCore\Application\Auth\Handlers\EnableTwoFactorHandler;
 use InnoSoft\AuthCore\Application\Listeners\LogSecurityEvents;
 use InnoSoft\AuthCore\Application\Listeners\SendEmailChangeAlerts;
+use InnoSoft\AuthCore\Domain\Auth\Services\DeviceSessionProvider;
 use InnoSoft\AuthCore\Domain\Auth\Services\PasswordTokenService;
 use InnoSoft\AuthCore\Domain\Auth\Services\TokenIssuer;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorChallengeService;
@@ -29,6 +30,7 @@ use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 use InnoSoft\AuthCore\Infrastructure\Auth\CacheTwoFactorChallengeService;
 use InnoSoft\AuthCore\Infrastructure\Auth\GoogleTwoFactorProvider;
 use InnoSoft\AuthCore\Infrastructure\Auth\LaravelPasswordTokenService;
+use InnoSoft\AuthCore\Infrastructure\Auth\SanctumDeviceSessionProvider;
 use InnoSoft\AuthCore\Infrastructure\Auth\SanctumTokenIssuer;
 use InnoSoft\AuthCore\Infrastructure\Bus\Event\LaravelEventBus;
 use InnoSoft\AuthCore\Infrastructure\Persistence\EloquentUserRepository;
@@ -66,6 +68,7 @@ class AuthCoreServiceProvider extends ServiceProvider
         $this->app->bind(TwoFactorChallengeService::class, CacheTwoFactorChallengeService::class);
         $this->app->bind(AuditLogger::class, LaravelAuditLogger::class);
         $this->app->bind(RoleRepository::class, SpatieRoleRepository::class);
+        $this->app->bind(DeviceSessionProvider::class, SanctumDeviceSessionProvider::class);
 
         $this->app->bind(DomainEventBus::class, LaravelEventBus::class);
     }
@@ -149,7 +152,10 @@ class AuthCoreServiceProvider extends ServiceProvider
     protected function configureRateLimiting(): void
     {
         RateLimiter::for('auth-core.login', function (Request $request) {
-            return Limit::perMinute(5)->by($request->ip());
+            // Use email if available, otherwise IP. This prevents IP blocking for multiple users (NAT)
+            // but still protects against brute force on a specific account.
+            $key = $request->input('email') ?: $request->ip();
+            return Limit::perMinute(5)->by($key);
         });
     }
 

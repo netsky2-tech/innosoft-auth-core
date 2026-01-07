@@ -103,6 +103,16 @@ test('it throws invalid credentials exception if user not found', function () {
     $repo = Mockery::mock(UserRepository::class);
     $repo->shouldReceive('findByEmail')->andReturn(null);
 
+    // Mock Hash check for timing attack protection
+    Hash::shouldReceive('check')->andReturn(false);
+
+    // Mock Event dispatch for Failed event
+    \Illuminate\Support\Facades\Event::shouldReceive('dispatch')
+        ->once()
+        ->withArgs(function ($event) {
+            return $event instanceof \Illuminate\Auth\Events\Failed;
+        });
+
     $tokenIssuer = Mockery::mock(TokenIssuer::class);
 
     $command = new LoginUserCommand('ghost@innosoft.com', 'secret');
@@ -113,14 +123,28 @@ test('it throws invalid credentials exception if user not found', function () {
 });
 
 test('it throws invalid credentials exception if password does not match', function () {
+    $userId = 'uuid-1';
     $user = User::register(
-        'uuid-1', 'John', new EmailAddress('john@innosoft.com'), 'hashed_real_secret'
+        $userId, 'John', new EmailAddress('john@innosoft.com'), 'hashed_real_secret'
     );
 
     $repo = Mockery::mock(UserRepository::class);
     $repo->shouldReceive('findByEmail')->andReturn($user);
+    
+    // Mock findAuthenticatableById for Failed event
+    $eloquentUserMock = Mockery::mock(\InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User::class);
+    $repo->shouldReceive('findAuthenticatableById')
+        ->with($userId)
+        ->andReturn($eloquentUserMock);
 
     Hash::shouldReceive('check')->andReturn(false);
+
+    // Mock Event dispatch for Failed event
+    \Illuminate\Support\Facades\Event::shouldReceive('dispatch')
+        ->once()
+        ->withArgs(function ($event) {
+            return $event instanceof \Illuminate\Auth\Events\Failed;
+        });
 
     $tokenIssuer = Mockery::mock(TokenIssuer::class);
 
