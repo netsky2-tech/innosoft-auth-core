@@ -15,6 +15,7 @@ use Illuminate\Validation\Rules\Password;
 use InnoSoft\AuthCore\Application\Auth\Commands\EnableTwoFactorCommand;
 use InnoSoft\AuthCore\Application\Auth\Handlers\EnableTwoFactorHandler;
 use InnoSoft\AuthCore\Application\Listeners\LogSecurityEvents;
+use InnoSoft\AuthCore\Application\Listeners\SecurityEventSubscriber;
 use InnoSoft\AuthCore\Application\Listeners\SendEmailChangeAlerts;
 use InnoSoft\AuthCore\Domain\Auth\Services\DeviceSessionProvider;
 use InnoSoft\AuthCore\Domain\Auth\Services\PasswordTokenService;
@@ -125,7 +126,7 @@ class AuthCoreServiceProvider extends ServiceProvider
         // ============================================================
 
         // Sync Subscriber
-        Event::subscribe(LogSecurityEvents::class);
+        Event::subscribe(SecurityEventSubscriber::class);
 
         // Async Listener
         /*Event::listen(

@@ -12,7 +12,7 @@ final readonly class UserDeleted implements DomainEvent
         private string            $email,
         private DateTimeImmutable $occurredAt = new DateTimeImmutable()
     ) {}
-    public function user(): string { return $this->userId; }
-    public function email(): string { return $this->email; }
+    public function getUserId(): string { return $this->userId; }
+    public function getEmail(): string { return $this->email; }
     public function occurredAt(): DateTimeImmutable { return $this->occurredAt; }
 }

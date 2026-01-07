@@ -13,6 +13,6 @@ final readonly class UserNameChanged implements DomainEvent
         private DateTimeImmutable $occurredAt = new DateTimeImmutable()
     ) {}
     public function user(): string { return $this->userId; }
-    public function email(): string { return $this->name; }
+    public function name(): string { return $this->name; }
     public function occurredAt(): DateTimeImmutable { return $this->occurredAt; }
 }
