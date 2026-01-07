@@ -15,6 +15,8 @@ use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 
 final readonly class LoginUserHandler
 {
+    // Hash dummy precalculado (hash de "secret") para no gastar CPU generándolo al vuelo
+    private const DUMMY_HASH = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi';
     public function __construct(
         private UserRepository $userRepository,
         private TokenIssuer    $tokenIssuer
@@ -28,12 +30,13 @@ final readonly class LoginUserHandler
     {
         $user = $this->userRepository->findByEmail($command->email);
 
-        // 1. Timing Attack Protection & Fail Fast
         // Always perform hash check to prevent timing analysis
         // If user is null, we hash a dummy string to simulate the same time cost
-        $targetHash = $user ? $user->getPasswordHash() : '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'; // Dummy hash
+        $targetHash = $user ? $user->getPasswordHash() : self::DUMMY_HASH; // Dummy hash
+
+        $validPassword = Hash::check($command->password, $targetHash);
         
-        if (!Hash::check($command->password, $targetHash)) {
+        if (!$user || !$validPassword) {
             // 2. Missing Failed Event
             // Dispatch Failed event for auditing and rate limiting (e.g. Fail2Ban)
             Event::dispatch(new Failed(
@@ -42,16 +45,6 @@ final readonly class LoginUserHandler
                 ['email' => $command->email]
             ));
             
-            throw new InvalidCredentialsException();
-        }
-        
-        // If user was null but hash check "passed" (impossible in practice but good for logic flow)
-        if (!$user) {
-             Event::dispatch(new Failed(
-                'sanctum',
-                null,
-                ['email' => $command->email]
-            ));
             throw new InvalidCredentialsException();
         }
 
