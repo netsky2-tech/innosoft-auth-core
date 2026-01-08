@@ -8,7 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        $tableName = config('auth-core.users_table_name', 'users');
+
+        Schema::table($tableName, function (Blueprint $table) {
             $table->text('two_factor_secret')->nullable();
             $table->text('two_factor_recovery_codes')->nullable();
             $table->timestamp('two_factor_confirmed_at')->nullable();
@@ -17,7 +19,9 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        $tableName = config('auth-core.users_table_name', 'users');
+
+        Schema::table($tableName, function (Blueprint $table) {
             $table->dropColumn([
                 'two_factor_secret',
                 'two_factor_recovery_codes',

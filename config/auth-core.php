@@ -21,8 +21,11 @@ return [
     |--------------------------------------------------------------------------
     | Routes prefix API
     |--------------------------------------------------------------------------
+    | Default: 'api'.
+    | The ServiceProvider will append '/v1', '/v2' automatically.
+    | Final URL example: domain.com/api/v1/auth/login
     */
-    'prefix' => 'api/auth',
+    'prefix' => 'api',
 
     /*
     |--------------------------------------------------------------------------
@@ -41,6 +44,18 @@ return [
     'features' => [
         '2fa' => true,
         'teams' => false, // Set to true to enable Tenant-Aware authorization
+        'registration' => false, // Allow public registration
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rate Limits
+    |--------------------------------------------------------------------------
+    | Configure rate limits for API endpoints.
+    */
+    'rate_limits' => [
+        'login' => 5, // Attempts per minute
+        'api' => 60,  // Requests per minute
     ],
 
     /*

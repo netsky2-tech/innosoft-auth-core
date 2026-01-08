@@ -4,9 +4,10 @@ namespace InnoSoft\AuthCore\UI\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+
 class InstallAuthCoreCommand extends Command
 {
-    protected $signature = 'auth-core:install';
+    protected $signature = 'innosoft:install';
     protected $description = 'Install InnoSoft Auth Core package resources and dependencies';
 
     public function handle(): int

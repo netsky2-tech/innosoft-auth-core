@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
@@ -108,7 +109,7 @@ class AuthCoreServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
         // Load API routes
-        $this->loadRoutesFrom(__DIR__.'/UI/Routes/api.php');
+        $this->registerRoutes();
 
         // Registrar alias de middleware
         $router = $this->app->make(Router::class);
@@ -145,6 +146,17 @@ class AuthCoreServiceProvider extends ServiceProvider
 
     }
 
+    protected function registerRoutes(): void
+    {
+        // V1 Routes
+        Route::prefix(config('auth-core.prefix', 'api') . '/v1')
+            ->group(__DIR__.'/UI/Routes/v1.php');
+            
+        // Future V2 Routes
+        // Route::prefix(config('auth-core.prefix', 'api') . '/v2')
+        //     ->group(__DIR__.'/UI/Routes/v2.php');
+    }
+
     protected function registerSuperAdminGate(): void
     {
         Gate::before(function ($user, $ability) {
@@ -165,7 +177,13 @@ class AuthCoreServiceProvider extends ServiceProvider
             // Use email if available, otherwise IP. This prevents IP blocking for multiple users (NAT)
             // but still protects against brute force on a specific account.
             $key = $request->input('email') ?: $request->ip();
-            return Limit::perMinute(5)->by($key);
+            $limit = config('auth-core.rate_limits.login', 5);
+            return Limit::perMinute($limit)->by($key);
+        });
+
+        RateLimiter::for('auth-core.api', function (Request $request) {
+            $limit = config('auth-core.rate_limits.api', 60);
+            return Limit::perMinute($limit)->by($request->user()?->id ?: $request->ip());
         });
     }
 

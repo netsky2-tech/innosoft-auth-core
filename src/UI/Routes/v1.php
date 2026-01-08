@@ -8,15 +8,17 @@ use InnoSoft\AuthCore\UI\Http\Controllers\AuditController;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes - Auth Core
+| API Routes - Auth Core (V1)
 |--------------------------------------------------------------------------
 |
-| Version: V1
 | Context: Identity & Access Management
 |
 */
 
-Route::prefix('api/v1')->name('api.v1.')->group(function () {
+// El prefijo base se define en el ServiceProvider, aquí solo definimos la estructura interna.
+// El ServiceProvider se encargará de envolver esto en: [Config Prefix] + /v1
+
+Route::name('api.v1.')->group(function () {
 
     // ========================================================================
     // 🔓 PUBLIC AUTHENTICATION ROUTES (Guest)
@@ -39,7 +41,7 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
     // 🛡️ PROTECTED ROUTES (Requires Bearer Token)
     // ========================================================================
 
-    Route::middleware(['auth:sanctum', 'auth.context'])->group(function () {
+    Route::middleware(['auth:sanctum', 'auth.context', 'throttle:auth-core.api'])->group(function () {
 
         // Logout
         Route::post('auth/logout', [AuthController::class, 'logout'])->name('auth.logout');

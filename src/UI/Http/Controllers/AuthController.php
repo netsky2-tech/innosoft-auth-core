@@ -48,6 +48,10 @@ class AuthController extends Controller
      */
     public function register(CreateUserRequest $request): JsonResponse
     {
+        if (!config('auth-core.features.registration', false)) {
+            return $this->errorResponse('Registration is disabled.', 403);
+        }
+
         return $this->safeExecute(function () use ($request) {
 
             $command = new RegisterUserCommand(

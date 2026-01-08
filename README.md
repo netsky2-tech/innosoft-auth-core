@@ -17,21 +17,41 @@ composer require innosoft/auth-core
 
 ## Setup Inicial
 
-### 1. Publicar recursos
-Publica la configuración (crítica para definir roles) y las migraciones.
+### 1. Instalación Automática (Recomendado)
+Ejecuta el comando unificado que publicará la configuración, migraciones y ejecutará los seeders necesarios.
 
 ```bash
-php artisan vendor:publish --tag=innosoft-auth-config
-php artisan vendor:publish --tag=innosoft-auth-migrations
+php artisan innosoft:install
 ```
 
-### 2. Configurar Roles y Permisos
-Edita el archivo `config/innosoft-auth.php`. Aquí defines la matriz de seguridad de tu aplicación.
+### 2. Configuración Manual (Opcional)
+Si prefieres hacerlo paso a paso o necesitas personalizar antes de migrar:
+
+**A. Publicar Configuración:**
+```bash
+php artisan vendor:publish --tag=innosoft-auth-config
+```
+
+**B. Editar `config/auth-core.php`:**
+Aquí defines la matriz de seguridad, features y límites.
 
 ```php
-// config/innosoft-auth.php
+// config/auth-core.php
 return [
-    'super_admin_role' => 'SuperAdmin', // Bypass total de seguridad
+    'prefix' => 'api', // Prefijo base para las rutas (ej. api/v1/auth/login)
+    
+    'features' => [
+        '2fa' => true,
+        'teams' => false,
+        'registration' => false, // Habilitar registro público
+    ],
+
+    'rate_limits' => [
+        'login' => 5, // Intentos por minuto
+        'api' => 60,
+    ],
+    
+    'super_admin_role' => 'SuperAdmin',
     
     'roles_structure' => [
         'Manager' => ['users.create', 'reports.view'],
@@ -40,19 +60,16 @@ return [
 ];
 ```
 
-### 3. Ejecutar Migraciones y Seeder
-En tu `DatabaseSeeder.php` principal, llama al seeder del paquete para sincronizar la configuración con la DB.
-
-```php
-// DatabaseSeeder.php
-public function run(): void
-{
-    $this->call(\InnoSoft\AuthCore\Infrastructure\Seeders\AuthCoreSeeder::class);
-}
+**C. Publicar y Ejecutar Migraciones:**
+```bash
+php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
+php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider"
+php artisan migrate
 ```
 
+**D. Ejecutar Seeder:**
 ```bash
-php artisan migrate --seed
+php artisan db:seed --class="InnoSoft\AuthCore\Database\Seeders\AuthCoreSeeder"
 ```
 
 ## Arquitectura orientada a Eventos (EDA)
@@ -110,12 +127,12 @@ El módulo de usuarios expone endpoints RESTful optimizados.
 
 Listar Usuarios (Paginado y Filtrado):
 ```http
-GET /api/users?page=1&per_page=10&search=juan
+GET /api/v1/users?page=1&per_page=10&search=juan
 ```
 
 Crear Usuario:
 ```http request
-POST /api/users
+POST /api/v1/users
 Content-Type: application/json
 
 {
@@ -243,20 +260,20 @@ Envía el ID del equipo en los headers de cada petición:
 
 ### Gestión de usuarios (API)
 Endpoints base listo para usar:
-- `POST /api/auth/login`
-- `POST /api/auth/register`
+- `POST /api/v1/auth/login`
+- `POST /api/v1/auth/register`
 
 ### Recuperación de Contraseña
 Flujo completo de reset de contraseña seguro.
-- **Request:** `POST /api/auth/forgot-password` (Payload: `{ "email": "..." }`)
-- **Reset:** `POST /api/auth/reset-password` (Payload: `{ "email": "...", "token": "...", "password": "...", "password_confirmation": "..." }`)
+- **Request:** `POST /api/v1/auth/forgot-password` (Payload: `{ "email": "..." }`)
+- **Reset:** `POST /api/v1/auth/reset-password` (Payload: `{ "email": "...", "token": "...", "password": "...", "password_confirmation": "..." }`)
 
 ### Two-Factor Authentication (2FA)
 Implementación basada en TOTP (Google Authenticator).
 
 **Flujo de Setup:**
-1. **Iniciar:** `POST /api/auth/two-factor/enable` -> Retorna `secret` y `qr_code_url`.
-2. **Confirmar:** `POST /api/auth/two-factor/confirm` (Payload: `{ "code": "123456" }`) -> Retorna `recovery_codes`.
+1. **Iniciar:** `POST /api/v1/auth/two-factor/enable` -> Retorna `secret` y `qr_code_url`.
+2. **Confirmar:** `POST /api/v1/auth/two-factor/confirm` (Payload: `{ "code": "123456" }`) -> Retorna `recovery_codes`.
 
 **Flujo de Login con 2FA:**
 Si el usuario tiene 2FA activo, el login normal retornará:
@@ -268,6 +285,6 @@ Si el usuario tiene 2FA activo, el login normal retornará:
 }
 ```
 Debes usar ese token para verificar:
-`POST /api/auth/two-factor/verify` (Payload: `{ "challenge_token": "...", "code": "..." }`) -> Retorna el `access_token` final.
+`POST /api/v1/auth/two-factor/verify` (Payload: `{ "challenge_token": "...", "code": "..." }`) -> Retorna el `access_token` final.
 
-Deshabilitar: `DELETE /api/auth/two-factor` (Payload: `{ "current_password": "..." }`) -> Retorna el `access_token` final.
+Deshabilitar: `DELETE /api/v1/auth/two-factor` (Payload: `{ "current_password": "..." }`) -> Retorna el `access_token` final.

@@ -8,22 +8,27 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
-            $table->softDeletes();
+        $tableName = config('auth-core.users_table_name', 'users');
 
-            // Índices para performance
-            $table->index('email');
-        });
+        if (!Schema::hasTable($tableName)) {
+            Schema::create($tableName, function (Blueprint $table) {
+                $table->uuid('id')->primary();
+                $table->string('name');
+                $table->string('email')->unique();
+                $table->string('password');
+                $table->rememberToken();
+                $table->timestamps();
+                $table->softDeletes();
+
+                // Índices para performance
+                $table->index('email');
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        $tableName = config('auth-core.users_table_name', 'users');
+        Schema::dropIfExists($tableName);
     }
 };
