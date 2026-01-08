@@ -14,7 +14,7 @@ test('it logs user registration as a security event', function () {
         }));
 
     $event = new UserRegistered('uuid-123', 'audit@innosoft.com');
-    $listener = new LogSecurityEvents($logger);
+    $listener = new \InnoSoft\AuthCore\Application\Listeners\SecurityEventSubscriber($logger);
 
     // 2. Act
     $listener->handleUserRegistered($event);

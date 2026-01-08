@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use InnoSoft\AuthCore\UI\Http\Controllers\AuthController;
 use InnoSoft\AuthCore\UI\Http\Controllers\UserController;
+use InnoSoft\AuthCore\UI\Http\Controllers\TeamController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,7 +38,7 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
     // 🛡️ PROTECTED ROUTES (Requires Bearer Token)
     // ========================================================================
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', 'auth.context'])->group(function () {
 
         // Logout
         Route::post('auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
@@ -54,6 +55,12 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
             Route::get('/', [AuthController::class, 'getSessions'])->name('index');
             Route::delete('/other', [AuthController::class, 'revokeOtherSessions'])->name('revoke-others');
             Route::delete('/{sessionId}', [AuthController::class, 'revokeSession'])->name('revoke');
+        });
+
+        // Teams Management
+        Route::prefix('teams')->name('teams.')->group(function () {
+            Route::get('/', [TeamController::class, 'index'])->name('index');
+            Route::post('/{id}/switch', [TeamController::class, 'switch'])->name('switch');
         });
 
         // --- User Management (Admin/Self) ---

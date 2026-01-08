@@ -179,7 +179,36 @@ En `config/auth-core.php`:
  ],
  ```
 
-### 2. Uso en Rutas
+### 2. Integración con el Modelo de Usuario (Requerido)
+Dado que la persistencia de los equipos es externa al paquete, **debes implementar la lógica de pertenencia** en tu modelo `User`.
+
+El paquete intentará validar automáticamente usando uno de los siguientes métodos en tu modelo `User`:
+
+**Opción A: Método `belongsToTeam($teamId)` (Recomendado)**
+```php
+// App/Models/User.php
+public function belongsToTeam(string $teamId): bool
+{
+    return $this->teams()->where('id', $teamId)->exists();
+}
+```
+
+**Opción B: Relación `teams`**
+Si tienes una relación Eloquent llamada `teams`, el paquete verificará si el ID existe en la colección.
+
+> **Nota:** Si no implementas ninguno, el cambio de equipo fallará por seguridad.
+
+### 3. Endpoints de Gestión
+El paquete expone endpoints para listar y cambiar de contexto.
+
+- **Listar Equipos:** `GET /api/v1/teams`
+  - *Nota:* Requiere que tu modelo `User` tenga una relación o método `teams` que retorne los equipos.
+  
+- **Cambiar Equipo:** `POST /api/v1/teams/{id}/switch`
+  - Retorna un nuevo token válido solo para ese equipo.
+  - El token incluirá el claim `current_team_id`.
+
+### 4. Uso en Rutas
 Aplica el middleware `auth.context` en las rutas que requieren aislamiento.
 
  ```php
@@ -189,7 +218,7 @@ Aplica el middleware `auth.context` en las rutas que requieren aislamiento.
  });
  ```
 
-### 3. Consumo (Frontend)
+### 5. Consumo (Frontend)
 Envía el ID del equipo en los headers de cada petición:
 `X-Team-ID: <team_id>`
  
@@ -227,4 +256,4 @@ Si el usuario tiene 2FA activo, el login normal retornará:
 Debes usar ese token para verificar:
 `POST /api/auth/two-factor/verify` (Payload: `{ "challenge_token": "...", "code": "..." }`) -> Retorna el `access_token` final.
 
-Deshabilitar: `DELETE /api/auth/two-factor` (Payload: `{ "current_password": "..." }`)
+Deshabilitar: `DELETE /api/auth/two-factor` (Payload: `{ "current_password": "..." }`) -> Retorna el `access_token` final.

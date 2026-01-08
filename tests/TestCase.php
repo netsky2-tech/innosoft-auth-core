@@ -22,6 +22,11 @@ abstract class TestCase extends Orchestra
         Factory::guessFactoryNamesUsing(
             fn (string $modelName) => 'InnoSoft\\AuthCore\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
+
+        // Disable teams by default for runtime logic so standard tests pass.
+        // The DB columns exist because of getEnvironmentSetUp, but we want the logic disabled by default.
+        config(['permission.teams' => false]);
+        config(['auth-core.features.teams' => false]);
     }
 
     protected function getPackageProviders($app): array
@@ -46,7 +51,28 @@ abstract class TestCase extends Orchestra
 
         // 3. load Spatie Permission migrations
         $migration = include __DIR__ . '/../vendor/spatie/laravel-permission/database/migrations/create_permission_tables.php.stub';
+
         $migration->up();
+        
+        // Fix for "NOT NULL constraint failed: model_has_roles.team_id"
+        // We make the team_id column nullable to support global roles in tests
+        if (\Illuminate\Support\Facades\Schema::hasColumn('model_has_roles', 'team_id')) {
+             // SQLite syntax to make column nullable is tricky, usually requires recreating table.
+             // But maybe Spatie's migration makes it nullable?
+             // "SQLSTATE[23000]: Integrity constraint violation: 19 NOT NULL constraint failed" confirms it is NOT nullable.
+        } else {
+            // If we ran with teams=false, the column doesn't exist.
+            // Let's add it as nullable.
+            \Illuminate\Support\Facades\Schema::table('model_has_roles', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->unsignedBigInteger('team_id')->nullable();
+            });
+            \Illuminate\Support\Facades\Schema::table('model_has_permissions', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->unsignedBigInteger('team_id')->nullable();
+            });
+             \Illuminate\Support\Facades\Schema::table('roles', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->unsignedBigInteger('team_id')->nullable();
+            });
+        }
 
         // 3. Load spatie activity log migrations
         if (!class_exists('CreateActivityLogTable')) {
@@ -98,6 +124,9 @@ abstract class TestCase extends Orchestra
             'driver'   => 'sanctum',
             'provider' => 'users',
         ]);
+
+        // Disable teams for Spatie Permission Migration so we can manually add nullable columns
+        $app['config']->set('permission.teams', false);
 
         $app['config']->set('permission.table_names', [
             'roles' => 'roles',

@@ -13,7 +13,7 @@ final readonly class ListUsersQueryHandler
     public function __construct(
         private UserRepository $userRepository
     ) {}
-    public function __invoke(ListUsersQuery $query): LengthAwarePaginator
+    public function handle(ListUsersQuery $query): LengthAwarePaginator
     {
         $paginator = $this->userRepository->search(
             page: $query->page,
