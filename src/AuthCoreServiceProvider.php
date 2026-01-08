@@ -12,11 +12,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
-use InnoSoft\AuthCore\Application\Auth\Commands\EnableTwoFactorCommand;
-use InnoSoft\AuthCore\Application\Auth\Handlers\EnableTwoFactorHandler;
-use InnoSoft\AuthCore\Application\Listeners\LogSecurityEvents;
 use InnoSoft\AuthCore\Application\Listeners\SecurityEventSubscriber;
-use InnoSoft\AuthCore\Application\Listeners\SendEmailChangeAlerts;
 use InnoSoft\AuthCore\Domain\Auth\Services\DeviceSessionProvider;
 use InnoSoft\AuthCore\Domain\Auth\Services\PasswordTokenService;
 use InnoSoft\AuthCore\Domain\Auth\Services\TokenIssuer;
@@ -24,10 +20,8 @@ use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorChallengeService;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorProvider;
 use InnoSoft\AuthCore\Domain\Roles\RoleRepository;
 use InnoSoft\AuthCore\Domain\Shared\DomainEventBus;
-use InnoSoft\AuthCore\Domain\Shared\HasDomainEvents;
 use InnoSoft\AuthCore\Domain\Shared\Services\AuditLogger;
 use InnoSoft\AuthCore\Domain\Teams\Services\TeamMembershipValidator;
-use InnoSoft\AuthCore\Domain\Users\Events\UserEmailChanged;
 use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 use InnoSoft\AuthCore\Infrastructure\Auth\CacheTwoFactorChallengeService;
 use InnoSoft\AuthCore\Infrastructure\Auth\GoogleTwoFactorProvider;
@@ -182,7 +176,7 @@ class AuthCoreServiceProvider extends ServiceProvider
         $baseNamespace = 'InnoSoft\\AuthCore\\Application\\';
 
         // 1. Definimos los módulos que queremos escanear
-        $modules = ['Auth', 'Roles', 'Users', 'Teams'];
+        $modules = ['Auth', 'Roles', 'Users', 'Teams', 'Audit'];
 
         foreach ($modules as $module) {
             // Rutas a escanear
@@ -213,69 +207,6 @@ class AuthCoreServiceProvider extends ServiceProvider
         }
 
         // Registrar todo el mapa de una sola vez
-        // Bus::map($map); // <-- COMENTADO: El mapeo manual puede causar conflictos si el Dispatcher ya intenta resolver automáticamente.
-        // Sin embargo, si usamos Bus::map, estamos forzando el mapeo.
-        // El problema es que el mapeo se hizo cuando el handler tenía __invoke, y ahora tiene handle.
-        // Laravel Bus debería ser capaz de encontrar 'handle' automáticamente si mapeamos la clase.
-        
-        // El error "Call to undefined method ... ListUsersQuery::__invoke()" sugiere que ALGUIEN está intentando invocar el QUERY OBJECT como si fuera un callable,
-        // O que el handler mapeado se está intentando invocar y Laravel asume __invoke si no encuentra handle? No.
-        //
-        // Espera, el error dice: Call to undefined method ... ListUsersQuery::__invoke()
-        // ¡Dice ListUsersQuery! NO ListUsersQueryHandler.
-        // Esto significa que se está intentando ejecutar el Query Object mismo como si fuera el handler.
-        // Esto pasa cuando el Bus no encuentra el handler mapeado y trata de ejecutar el comando/query mismo (self-handling).
-        
-        // ¿Por qué no encuentra el handler?
-        // Porque cambié __invoke a handle, pero tal vez el mapeo en memoria sigue apuntando a algo raro o el mapeo falló silenciosamente.
-        // O, más probable:
-        // En discoverHandlers:
-        // $handlerName = Str::replaceLast($type, 'Handler', $className);
-        // ListUsersQuery -> ListUsersHandler (NO ListUsersQueryHandler)
-        //
-        // Mi archivo se llama ListUsersQueryHandler.php
-        // Pero mi lógica de descubrimiento hace:
-        // $className = ListUsersQuery
-        // $type = Query
-        // replaceLast('Query', 'Handler', 'ListUsersQuery') -> ListUsersHandler
-        //
-        // ¡Ahí está el error!
-        // Si el archivo del Query es "ListUsersQuery.php", y el Handler es "ListUsersQueryHandler.php".
-        // Mi lógica busca "ListUsersHandler".
-        //
-        // Si el archivo del Query fuera "ListUsers.php" (sin sufijo Query), entonces replaceLast no aplicaría si busco 'Query'.
-        //
-        // Revisemos la lógica en discoverHandlers:
-        // $className = $file->getBasename('.php'); // Ej: ListUsersQuery
-        // $handlerName = Str::replaceLast($type, 'Handler', $className);
-        //
-        // Si type='Query':
-        // ListUsersQuery -> ListUsersHandler.
-        //
-        // Pero mi clase real es ListUsersQueryHandler.
-        // Entonces el mapa queda: ListUsersQuery => ListUsersHandler.
-        // Y como ListUsersHandler NO existe, el mapa no se crea (por el check class_exists).
-        //
-        // if (class_exists($commandClass) && class_exists($handlerClass)) { ... }
-        //
-        // Entonces, ListUsersQuery NO se mapea.
-        // Al no estar mapeado, el Bus intenta ejecutar el Query como self-handling, buscando un método handle() o __invoke() en el Query mismo.
-        // Y falla.
-        
-        // Solución: Ajustar la convención de nombres en discoverHandlers.
-        // Si el handler se llama ListUsersQueryHandler (mantiene el sufijo Query), entonces la lógica debe ser diferente.
-        //
-        // Convención actual en el proyecto:
-        // Command: CreateUserCommand -> Handler: CreateUserHandler (Sufijo Command reemplazado por Handler)
-        // Query: ListUsersQuery -> Handler: ListUsersQueryHandler (Sufijo Query CONSERVADO + Handler)
-        //
-        // ¡Ajá! Inconsistencia en la convención de nombres entre Comandos y Queries.
-        //
-        // Comandos: CreateUserCommand -> CreateUserHandler (Reemplaza)
-        // Queries: ListUsersQuery -> ListUsersQueryHandler (Agrega)
-        
-        // Voy a modificar discoverHandlers para soportar ambas convenciones o ajustar la lógica para Queries.
-        
         Bus::map($map);
     }
 

@@ -88,6 +88,20 @@ El paquete incluye un sistema de Logging de Auditoría automático.
 - Seguridad: Registra cambios de password, email, logins fallidos y exitosos.
 - Alertas: Envía correos de seguridad automáticamente cuando se cambia información sensible (ej. cambio de email).
 
+### Visualización de Logs
+El paquete expone endpoints para consultar los logs de auditoría, permitiendo a los administradores rastrear acciones críticas.
+
+**Listar Logs (Filtros disponibles):**
+```http
+GET /api/v1/audit/logs?page=1&per_page=15&event=login&user_id=uuid
+```
+Permiso requerido: `audit.view`
+
+**Logs por Usuario:**
+```http
+GET /api/v1/audit/users/{id}/logs
+```
+
 ## API & Consumo (CQRS)
 
 ### Gestión de Usuarios (Ejemplos)

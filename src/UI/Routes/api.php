@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use InnoSoft\AuthCore\UI\Http\Controllers\AuthController;
 use InnoSoft\AuthCore\UI\Http\Controllers\UserController;
 use InnoSoft\AuthCore\UI\Http\Controllers\TeamController;
+use InnoSoft\AuthCore\UI\Http\Controllers\AuditController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +66,12 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
 
         // --- User Management (Admin/Self) ---
         Route::apiResource('users', UserController::class);
+
+        // --- Audit Logs ---
+        Route::prefix('audit')->name('audit.')->group(function () {
+            Route::get('logs', [AuditController::class, 'index'])->name('logs.index');
+            Route::get('users/{id}/logs', [AuditController::class, 'userLogs'])->name('users.logs');
+        });
     });
 
 });
