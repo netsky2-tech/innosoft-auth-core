@@ -2,10 +2,10 @@
 
 namespace InnoSoft\AuthCore\Database\Factories;
 
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User;
 
 class UserFactory extends Factory
 {

@@ -2,10 +2,10 @@
 
 namespace InnoSoft\AuthCore\Infrastructure\Auth;
 
+use Illuminate\Support\Facades\Password;
 use InnoSoft\AuthCore\Domain\Auth\Services\PasswordTokenService;
 use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User as EloquentUser;
-use Illuminate\Support\Facades\Password;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User as EloquentUser;
 
 class LaravelPasswordTokenService implements PasswordTokenService
 {

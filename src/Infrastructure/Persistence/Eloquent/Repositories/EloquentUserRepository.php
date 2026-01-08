@@ -1,12 +1,12 @@
 <?php
 
-namespace InnoSoft\AuthCore\Infrastructure\Persistence;
+namespace InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Repositories;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Model;
 use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
 use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
-use Illuminate\Database\Eloquent\Model;
 
 /**
  *

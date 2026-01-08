@@ -3,7 +3,7 @@
 namespace InnoSoft\AuthCore\Infrastructure\Auth;
 
 use InnoSoft\AuthCore\Domain\Auth\Services\DeviceSessionProvider;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User as EloquentUser;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User as EloquentUser;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class SanctumDeviceSessionProvider implements DeviceSessionProvider

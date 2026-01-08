@@ -5,9 +5,12 @@ namespace InnoSoft\AuthCore\Application\Listeners;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use InnoSoft\AuthCore\Domain\Auth\Events\SecurityAlert;
+use InnoSoft\AuthCore\Domain\Auth\Events\UserLoggedIn;
 use InnoSoft\AuthCore\Domain\Shared\Services\AuditLogger;
 use InnoSoft\AuthCore\Domain\Users\Events\PasswordChanged;
 use InnoSoft\AuthCore\Domain\Users\Events\PasswordResetCompleted;
+use InnoSoft\AuthCore\Domain\Users\Events\RoleAssigned;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorDisabled;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnrollmentConfirmed;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnrollmentInitiated;
@@ -35,6 +38,15 @@ readonly class SecurityEventSubscriber implements ShouldQueue
         $this->logger->logSecurityEvent('auth.login.success', [
             'user_id' => $event->user->getAuthIdentifier(),
             'email' => $event->user->email ?? null,
+        ]);
+    }
+
+    public function handleUserLoggedIn(UserLoggedIn $event): void
+    {
+        $this->logger->logSecurityEvent('auth.login.domain', [
+            'user_id' => $event->userId(),
+            'ip' => $event->ipAddress(),
+            'user_agent' => $event->userAgent(),
         ]);
     }
 
@@ -106,11 +118,30 @@ readonly class SecurityEventSubscriber implements ShouldQueue
         ]);
     }
 
+    public function handleRoleAssigned(RoleAssigned $event): void
+    {
+        $this->logger->logSecurityEvent('user.role.assigned', [
+            'user_id' => $event->userId(),
+            'role_id' => $event->roleId(),
+            'role_name' => $event->roleName(),
+        ]);
+    }
+
+    public function handleSecurityAlert(SecurityAlert $event): void
+    {
+        $this->logger->logSecurityEvent('security.alert', [
+            'threat_type' => $event->threatType(),
+            'ip' => $event->ipAddress(),
+            'user_id' => $event->userId(),
+        ]);
+    }
+
     public function subscribe($events): array
     {
         return [
             UserRegistered::class => 'handleUserRegistered',
             Login::class => 'handleLogin',
+            UserLoggedIn::class => 'handleUserLoggedIn',
             Failed::class => 'handleLoginFailed',
             TwoFactorEnrollmentInitiated::class => 'handleTwoFactorInitiated',
             TwoFactorEnrollmentConfirmed::class => 'handleTwoFactorConfirmed',
@@ -120,6 +151,8 @@ readonly class SecurityEventSubscriber implements ShouldQueue
             UserDeleted::class => 'handleUserDeleted',
             UserEmailChanged::class => 'handleEmailChanged',
             UserNameChanged::class => 'handleNameChanged',
+            RoleAssigned::class => 'handleRoleAssigned',
+            SecurityAlert::class => 'handleSecurityAlert',
         ];
     }
 }

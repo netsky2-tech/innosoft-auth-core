@@ -7,7 +7,7 @@ return [
     |--------------------------------------------------------------------------
     | The eloquent class that will act as user must implement de package interfaces.
     */
-    'user_model' => \InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User::class,
+    'user_model' => \InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User::class,
 
     /*
     |--------------------------------------------------------------------------

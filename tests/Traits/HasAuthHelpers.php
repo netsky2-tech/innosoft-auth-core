@@ -2,8 +2,9 @@
 
 namespace InnoSoft\AuthCore\Tests\Traits;
 
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User;
 use InnoSoft\AuthCore\Database\Seeders\AuthCoreSeeder;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User;
+
 trait HasAuthHelpers
 {
     protected function createSuperAdmin(): \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model

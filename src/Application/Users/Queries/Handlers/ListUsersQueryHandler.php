@@ -6,7 +6,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use InnoSoft\AuthCore\Application\Users\DTOs\UserView;
 use InnoSoft\AuthCore\Application\Users\Queries\ListUsersQuery;
 use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User;
 
 final readonly class ListUsersQueryHandler
 {

@@ -1,7 +1,7 @@
 <?php
 test('user with 2fa enabled receives challenge instead of token', function () {
     // Arrange: User con 2FA secret
-    $user = \InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User::factory()->create([
+    $user = \InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User::factory()->create([
         'two_factor_secret' => 'TESTSECRET',
         'two_factor_confirmed_at' => now(),
     ]);
@@ -31,7 +31,7 @@ test('user with 2fa enabled receives challenge instead of token', function () {
 
 test('user can complete login with valid otp', function () {
     // Arrange: User & Challenge token valid on cache
-    $user = \InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User::factory()->create(['two_factor_secret' => 'TESTSECRET']);
+    $user = \InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User::factory()->create(['two_factor_secret' => 'TESTSECRET']);
     $token = 'valid-challenge-token';
     \Illuminate\Support\Facades\Cache::put($token, $user->id, 300);
 

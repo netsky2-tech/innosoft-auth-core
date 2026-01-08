@@ -2,11 +2,7 @@
 
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Event;
-use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorDisabled;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User;
 
 uses(RefreshDatabase::class);
 

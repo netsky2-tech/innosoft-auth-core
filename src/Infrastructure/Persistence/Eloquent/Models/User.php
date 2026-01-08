@@ -1,11 +1,11 @@
 <?php
 
-namespace InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent;
+namespace InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use InnoSoft\AuthCore\Database\Factories\UserFactory;
 use Laravel\Sanctum\HasApiTokens;

@@ -6,6 +6,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use InnoSoft\AuthCore\Domain\Shared\HasDomainEvents;
 use InnoSoft\AuthCore\Domain\Users\Events\PasswordChanged;
+use InnoSoft\AuthCore\Domain\Users\Events\RoleAssigned;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorDisabled;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnrollmentConfirmed;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnrollmentInitiated;
@@ -145,6 +146,17 @@ class User
         $this->record(new UserDeleted(
             $this->id,
             $this->email->getValue()
+        ));
+    }
+
+    // This method is called when a role is assigned to the user
+    // Since roles are managed via Eloquent/Spatie, this is a bridge to emit the domain event
+    public function notifyRoleAssigned(string $roleId, string $roleName): void
+    {
+        $this->record(new RoleAssigned(
+            $this->id,
+            $roleId,
+            $roleName
         ));
     }
 

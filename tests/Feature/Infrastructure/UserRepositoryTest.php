@@ -4,8 +4,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use InnoSoft\AuthCore\Domain\Users\Aggregates\User;
 use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 use InnoSoft\AuthCore\Domain\Users\ValueObjects\EmailAddress;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User as EloquentUser;
-use InnoSoft\AuthCore\Infrastructure\Persistence\EloquentUserRepository;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User as EloquentUser;
 
 uses(RefreshDatabase::class);
 

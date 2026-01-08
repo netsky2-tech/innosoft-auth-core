@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Permission;
 

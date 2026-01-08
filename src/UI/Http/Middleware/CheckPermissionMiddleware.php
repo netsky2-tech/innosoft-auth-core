@@ -4,9 +4,9 @@ namespace InnoSoft\AuthCore\UI\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User;
+use Symfony\Component\HttpFoundation\Response;
 
 class CheckPermissionMiddleware
 {

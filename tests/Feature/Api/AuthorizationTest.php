@@ -1,11 +1,10 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User;
+use Illuminate\Support\Facades\Route;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Route;
 
 uses(RefreshDatabase::class);
 

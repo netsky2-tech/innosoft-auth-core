@@ -4,8 +4,7 @@ namespace InnoSoft\AuthCore\Infrastructure\Auth;
 
 use InnoSoft\AuthCore\Domain\Auth\Services\TokenIssuer;
 use InnoSoft\AuthCore\Domain\Users\Aggregates\User as DomainUser;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User as EloquentUser;
-use Laravel\Sanctum\NewAccessToken;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User as EloquentUser;
 
 class SanctumTokenIssuer implements TokenIssuer
 {

@@ -3,13 +3,13 @@
 namespace InnoSoft\AuthCore\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use InnoSoft\AuthCore\AuthCoreServiceProvider;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User;
 use Laravel\Sanctum\SanctumServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Spatie\Activitylog\ActivitylogServiceProvider;
 use Spatie\Permission\PermissionServiceProvider;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 abstract class TestCase extends Orchestra
 {

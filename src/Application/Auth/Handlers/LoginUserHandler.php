@@ -7,6 +7,8 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use InnoSoft\AuthCore\Application\Auth\Commands\LoginUserCommand;
+use InnoSoft\AuthCore\Domain\Auth\Events\SecurityAlert;
+use InnoSoft\AuthCore\Domain\Auth\Events\UserLoggedIn;
 use InnoSoft\AuthCore\Domain\Auth\Exceptions\TwoFactorRequiredException;
 use InnoSoft\AuthCore\Domain\Auth\Services\TokenIssuer;
 use InnoSoft\AuthCore\Domain\Users\Exceptions\InvalidCredentialsException;
@@ -44,6 +46,13 @@ final readonly class LoginUserHandler
                 $user ? $this->userRepository->findAuthenticatableById($user->getId()) : null,
                 ['email' => $command->email]
             ));
+
+            // Dispatch Security Alert for failed login
+            Event::dispatch(new SecurityAlert(
+                'failed_login',
+                request()->ip() ?? '0.0.0.0',
+                $user?->getId()
+            ));
             
             throw new InvalidCredentialsException();
         }
@@ -64,6 +73,13 @@ final readonly class LoginUserHandler
                 false
             ));
         }
+
+        // Dispatch Domain Event
+        Event::dispatch(new UserLoggedIn(
+            $user->getId(),
+            request()->ip() ?? '0.0.0.0',
+            request()->userAgent() ?? 'Unknown',
+        ));
 
         // Generate token
         $token = $this->tokenIssuer->issue($user, $command->deviceName);

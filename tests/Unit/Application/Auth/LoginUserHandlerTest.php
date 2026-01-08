@@ -35,7 +35,7 @@ test(/**
 
     // 1.2 Simular el Modelo Eloquent/Authenticatable (Para el evento Login)
     // Usamos Authenticatable para ser genéricos, ya que EloquentUser implementa esta interfaz.
-    $eloquentUserMock = Mockery::mock(\InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User::class);
+    $eloquentUserMock = Mockery::mock(\InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User::class);
 
     $eloquentUserMock->shouldReceive('setAttribute')
         ->with('id', $userId)
@@ -132,7 +132,7 @@ test('it throws invalid credentials exception if password does not match', funct
     $repo->shouldReceive('findByEmail')->andReturn($user);
     
     // Mock findAuthenticatableById for Failed event
-    $eloquentUserMock = Mockery::mock(\InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User::class);
+    $eloquentUserMock = Mockery::mock(\InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User::class);
     $repo->shouldReceive('findAuthenticatableById')
         ->with($userId)
         ->andReturn($eloquentUserMock);

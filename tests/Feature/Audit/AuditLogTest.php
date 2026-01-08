@@ -1,10 +1,9 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use InnoSoft\AuthCore\Domain\Shared\Services\AuditLogger;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use InnoSoft\AuthCore\Domain\Shared\Services\AuditLogger;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User;
 
 uses(RefreshDatabase::class);
 

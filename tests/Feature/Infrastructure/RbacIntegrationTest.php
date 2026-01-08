@@ -6,8 +6,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 use InnoSoft\AuthCore\Database\Seeders\AuthCoreSeeder;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User;
 use InnoSoft\AuthCore\Tests\TestCase;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User;
 use PHPUnit\Framework\Attributes\Test;
 
 class RbacIntegrationTest extends TestCase

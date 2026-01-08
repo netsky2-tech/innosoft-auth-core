@@ -2,7 +2,7 @@
 
 namespace InnoSoft\AuthCore\Tests\Traits;
 
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User;
 
 trait CreatesUsers
 {

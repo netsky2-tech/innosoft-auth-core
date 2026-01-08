@@ -1,11 +1,12 @@
 <?php
 
-namespace InnoSoft\AuthCore\Infrastructure\Persistence;
+namespace InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Repositories;
 
 
 use InnoSoft\AuthCore\Domain\Roles\RoleDTO;
 use InnoSoft\AuthCore\Domain\Roles\RoleRepository;
 use Spatie\Permission\Models\Role as SpatieRole;
+
 class SpatieRoleRepository implements RoleRepository
 {
 

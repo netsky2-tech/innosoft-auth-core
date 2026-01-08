@@ -3,7 +3,7 @@
 namespace InnoSoft\AuthCore\Infrastructure\Teams;
 
 use InnoSoft\AuthCore\Domain\Teams\Services\TeamMembershipValidator;
-use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\User as EloquentUser;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User as EloquentUser;
 
 class HostTeamMembershipValidator implements TeamMembershipValidator
 {
