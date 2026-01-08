@@ -39,6 +39,7 @@ use InnoSoft\AuthCore\Infrastructure\Persistence\SpatieRoleRepository;
 use InnoSoft\AuthCore\Infrastructure\Services\LaravelAuditLogger;
 use InnoSoft\AuthCore\UI\Console\Commands\InstallAuthCoreCommand;
 use InnoSoft\AuthCore\UI\Http\Middleware\CheckPermissionMiddleware;
+use InnoSoft\AuthCore\UI\Http\Middleware\TeamContextMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
@@ -50,6 +51,11 @@ class AuthCoreServiceProvider extends ServiceProvider
     {
         // merge default settings
         $this->mergeConfigFrom(__DIR__.'/../config/auth-core.php', 'auth-core');
+
+        // Si la feature de Teams está activa, forzamos la configuración de Spatie
+        if (config('auth-core.features.teams', false)) {
+            config(['permission.teams' => true]);
+        }
 
         // Biding del repositorio con modelo dinamico
         $this->app->bind(UserRepository::class, function ($app) {
@@ -89,6 +95,7 @@ class AuthCoreServiceProvider extends ServiceProvider
         $router->aliasMiddleware('role', RoleMiddleware::class);
         $router->aliasMiddleware('permission', PermissionMiddleware::class);
         $router->aliasMiddleware('role_or_permission', RoleOrPermissionMiddleware::class);
+        $router->aliasMiddleware('auth.context', TeamContextMiddleware::class);
 
         // Publish settings
         $this->publishes([

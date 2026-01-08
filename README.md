@@ -160,17 +160,46 @@ use InnoSoft\AuthCore\Application\Roles\Queries\GetRoles\GetRolesHandler;
 
 public function index(Request $request, GetRolesHandler $handler)
 {
-    // Retorna DTOs optimizados (RoleReadModel) con paginación
+    // Retorna DTO optimizados (RoleReadModel) con paginación
     return $handler->handle(new GetRolesQuery(...));
 }
 ```
 
 ---
 
+## Multitenancy / Teams (Context Awareness)
+
+El paquete soporta autorización contextual (Teams) sin imponer una estructura de base de datos específica. Esto permite reutilizar roles y permisos en diferentes sucursales o equipos.
+
+### 1. Habilitar la Feature
+En `config/auth-core.php`:
+ ```php
+ 'features' => [
+     'teams' => true, // Activa el modo Tenant-Aware
+ ],
+ ```
+
+### 2. Uso en Rutas
+Aplica el middleware `auth.context` en las rutas que requieren aislamiento.
+
+ ```php
+ Route::middleware(['auth:sanctum', 'auth.context'])->group(function () {
+     // El paquete filtrará automáticamente los permisos según el Team ID recibido en el header
+     Route::get('/sales', ...);
+ });
+ ```
+
+### 3. Consumo (Frontend)
+Envía el ID del equipo en los headers de cada petición:
+`X-Team-ID: <team_id>`
+ 
+
+---
+
 ## Features v0.2.0: Seguridad Avanzada
 
 ### Gestión de usuarios (API)
-Endpoints base listos para usar:
+Endpoints base listo para usar:
 - `POST /api/auth/login`
 - `POST /api/auth/register`
 

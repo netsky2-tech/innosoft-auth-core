@@ -34,6 +34,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Package Features
+    |--------------------------------------------------------------------------
+    | Enable or disable specific features of the package.
+    */
+    'features' => [
+        '2fa' => true,
+        'teams' => false, // Set to true to enable Tenant-Aware authorization
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Super Admin Role
     |--------------------------------------------------------------------------
     | This role will have access to the entire app
