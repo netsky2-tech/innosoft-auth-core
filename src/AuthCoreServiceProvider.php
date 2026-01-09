@@ -35,6 +35,7 @@ use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Repositories\SpatieRol
 use InnoSoft\AuthCore\Infrastructure\Services\LaravelAuditLogger;
 use InnoSoft\AuthCore\Infrastructure\Teams\HostTeamMembershipValidator;
 use InnoSoft\AuthCore\UI\Console\Commands\InstallAuthCoreCommand;
+use InnoSoft\AuthCore\UI\Console\Commands\PruneAuthDataCommand;
 use InnoSoft\AuthCore\UI\Http\Middleware\CheckPermissionMiddleware;
 use InnoSoft\AuthCore\UI\Http\Middleware\TeamContextMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
@@ -120,6 +121,7 @@ class AuthCoreServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 InstallAuthCoreCommand::class,
+                PruneAuthDataCommand::class,
             ]);
         }
 

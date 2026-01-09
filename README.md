@@ -119,6 +119,28 @@ Permiso requerido: `audit.view`
 GET /api/v1/audit/users/{id}/logs
 ```
 
+### Limpieza de Datos (Pruning)
+Para mantener la base de datos optimizada y cumplir con políticas de retención, el paquete incluye un comando para eliminar tokens expirados y logs antiguos.
+
+**Uso Manual:**
+```bash
+# Limpieza general (30 días por defecto)
+php artisan auth:prune
+
+# Personalizar retención (ej. 60 días)
+php artisan auth:prune --days=60
+
+# Solo limpiar tokens o logs
+php artisan auth:prune --tokens
+php artisan auth:prune --logs
+```
+
+**Programación Automática:**
+Agrega el comando al `Console/Kernel.php` de tu aplicación:
+```php
+$schedule->command('auth:prune')->daily();
+```
+
 ## API & Consumo (CQRS)
 
 ### Gestión de Usuarios (Ejemplos)
