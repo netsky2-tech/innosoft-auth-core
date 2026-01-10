@@ -2,7 +2,10 @@
 
 namespace InnoSoft\AuthCore\Application\Auth\Handlers;
 
+use Illuminate\Auth\Events\Login;
+use Illuminate\Support\Facades\Event;
 use InnoSoft\AuthCore\Application\Auth\Commands\VerifyTwoFactorLoginCommand;
+use InnoSoft\AuthCore\Domain\Auth\Events\UserLoggedIn;
 use InnoSoft\AuthCore\Domain\Auth\Services\TokenIssuer;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorChallengeService;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorProvider;
@@ -36,9 +39,38 @@ readonly class VerifyTwoFactorLoginHandler
             throw new InvalidCredentialsException();
         }
 
+        $eloquentUser = $this->userRepository->findAuthenticatableById($user->getId());
+        if ($eloquentUser) {
+            Event::dispatch(new Login(
+                'sanctum',
+                $eloquentUser,
+                false
+            ));
+        }
+
+        // Dispatch Domain Event
+        Event::dispatch(new UserLoggedIn(
+            $user->getId(),
+            request()->ip() ?? '0.0.0.0',
+            request()->userAgent() ?? 'Unknown',
+        ));
+
         // 3. Emit final token
         $token = $this->tokenIssuer->issue($user, $command->deviceName);
 
-        return ['access_token' => $token];
+        $roles = $eloquentUser ? $eloquentUser->getRoleNames() : [];
+        $permissions = $eloquentUser ? $eloquentUser->getAllPermissions()->pluck('name') : [];
+
+        return [
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user' => [
+                'id' => $user->getId(),
+                'name' => $user->getName(),
+                'email' => $user->getEmail()->getValue(),
+                'roles' => $roles,
+                'permissions' => $permissions,
+            ]
+        ];
     }
 }

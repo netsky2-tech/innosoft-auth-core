@@ -84,6 +84,9 @@ final readonly class LoginUserHandler
         // Generate token
         $token = $this->tokenIssuer->issue($user, $command->deviceName);
 
+        $roles = $eloquentUser ? $eloquentUser->getRoleNames() : [];
+        $permissions = $eloquentUser ? $eloquentUser->getAllPermissions()->pluck('name') : [];
+
         return [
             'success' => true,
             'access_token' => $token,
@@ -92,6 +95,8 @@ final readonly class LoginUserHandler
                 'id' => $user->getId(),
                 'name' => $user->getName(),
                 'email' => $user->getEmail()->getValue(),
+                'roles' => $roles,
+                'permissions' => $permissions,
             ]
         ];
     }

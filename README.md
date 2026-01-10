@@ -340,3 +340,22 @@ Debes usar ese token para verificar:
 `POST /api/v1/auth/two-factor/verify` (Payload: `{ "challenge_token": "...", "code": "..." }`) -> Retorna el `access_token` final.
 
 Deshabilitar: `DELETE /api/v1/auth/two-factor` (Payload: `{ "current_password": "..." }`) -> Retorna el `access_token` final.
+
+### Respuesta de Login
+La respuesta de login exitoso (tanto normal como 2FA) incluye el token y la información del usuario aplanada para facilitar su uso en el Frontend.
+
+```json
+{
+    "success": true,
+    "message": "Logged in successfully",
+    "access_token": "eyJ0eXAi...",
+    "token_type": "Bearer",
+    "user": {
+        "id": "uuid-...",
+        "name": "John Doe",
+        "email": "john@example.com",
+        "roles": ["admin", "editor"],
+        "permissions": ["create_posts", "publish_posts"]
+    }
+}
+```

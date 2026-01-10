@@ -15,8 +15,15 @@ trait ApiResponse
             'success' => true,
             'message' => $message ?? trans('auth-core::messages.ok'),
         ];
+        
         if(!is_null($data)) {
-            $payload['data'] = $data;
+            // If data is an array and has 'access_token', we merge it at the root level
+            // This is a common pattern for login responses to keep the structure flat
+            if (is_array($data) && isset($data['access_token'])) {
+                $payload = array_merge($payload, $data);
+            } else {
+                $payload['data'] = $data;
+            }
         }
 
         return response()->json($payload, $code);
