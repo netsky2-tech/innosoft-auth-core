@@ -28,7 +28,7 @@ final readonly class ConfirmTwoFactorHandler
         $user = $this->userRepository->findById($command->userId);
 
         if (!$user->getTwoFactorSecret()) {
-            throw new \DomainException('Two factor authentication has not been initialized.');
+            throw new \DomainException(trans('auth-core::messages.two_factor_not_initialized'));
         }
 
         // 1. Validating TOTP

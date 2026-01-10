@@ -57,6 +57,9 @@ return [
         'Manager' => ['users.create', 'reports.view'],
         'Seller'  => ['pos.sales', 'pos.refunds'],
     ],
+
+    // Configuración de idioma (opcional)
+    'locale' => 'es', // Forzar idioma español para el paquete
 ];
 ```
 
@@ -71,6 +74,26 @@ php artisan migrate
 ```bash
 php artisan db:seed --class="InnoSoft\AuthCore\Database\Seeders\AuthCoreSeeder"
 ```
+
+## Internacionalización (i18n)
+
+El paquete soporta múltiples idiomas para los mensajes de error y validación.
+
+### Configuración
+Por defecto, el paquete utiliza el idioma configurado en tu aplicación (`config('app.locale')`).
+Si deseas forzar un idioma específico para el paquete, puedes configurarlo en `config/auth-core.php`:
+
+```php
+'locale' => 'es',
+```
+
+### Personalización de Mensajes
+Puedes publicar los archivos de traducción para modificarlos según tus necesidades:
+
+```bash
+php artisan vendor:publish --tag=auth-core-translations
+```
+Esto copiará los archivos a `resources/lang/vendor/auth-core`.
 
 ## Arquitectura orientada a Eventos (EDA)
 El paquete emite Eventos de Dominio que tu aplicación principal puede escuchar para reaccionar a cambios sin acoplarse al código de autenticación.

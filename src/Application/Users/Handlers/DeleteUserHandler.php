@@ -25,7 +25,7 @@ final readonly class DeleteUserHandler
         $user = $this->userRepository->findById($command->userId);
 
         if (!$user) {
-            throw new UserNotFoundException("User with ID {$command->userId} not found for deletion.");
+            throw new UserNotFoundException($command->userId);
         }
 
         DB::transaction(function () use ($user) {

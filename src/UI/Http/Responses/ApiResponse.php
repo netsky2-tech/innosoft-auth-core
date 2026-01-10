@@ -9,11 +9,11 @@ trait ApiResponse
     /**
      * Standard Success Response (200 OK)
      */
-    protected function successResponse(mixed $data = null, string $message = 'OK', int $code = 200): JsonResponse
+    protected function successResponse(mixed $data = null, string $message = null, int $code = 200): JsonResponse
     {
         $payload = [
             'success' => true,
-            'message' => $message,
+            'message' => $message ?? trans('auth-core::messages.ok'),
         ];
         if(!is_null($data)) {
             $payload['data'] = $data;
@@ -48,7 +48,7 @@ trait ApiResponse
         return response()->json([
             'success' => true,
             'status'  => '2fa_required',
-            'message' => 'Two factor authentication required.',
+            'message' => trans('auth-core::messages.two_factor_required'),
             'data'    => [
                 'temp_token' => $tempToken,
                 'expires_in' => $expiresIn

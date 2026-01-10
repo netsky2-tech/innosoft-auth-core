@@ -6,8 +6,8 @@ use Exception;
 
 class RoleNotFoundException extends Exception
 {
-    public function __construct(string $message = "Role not found")
+    public function __construct(string $roleName)
     {
-        parent::__construct($message);
+        parent::__construct(trans('auth-core::messages.role_not_found', ['role' => $roleName]));
     }
 }

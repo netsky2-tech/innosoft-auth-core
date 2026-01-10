@@ -49,7 +49,7 @@ class AuthController extends Controller
     public function register(CreateUserRequest $request): JsonResponse
     {
         if (!config('auth-core.features.registration', false)) {
-            return $this->errorResponse('Registration is disabled.', 403);
+            return $this->errorResponse(trans('auth-core::messages.registration_disabled'), 403);
         }
 
         return $this->safeExecute(function () use ($request) {
@@ -62,7 +62,7 @@ class AuthController extends Controller
 
             $this->dispatcher->dispatch($command);
 
-        }, 'User registered successfully.', 201);
+        }, trans('auth-core::messages.user_registered_successfully'), 201);
 
     }
 
@@ -89,7 +89,7 @@ class AuthController extends Controller
 
                 return $this->twoFactorRequiredResponse($challengeToken, 300);
             }
-        }, 'Logged in successfully', 200);
+        }, trans('auth-core::messages.logged_in_successfully'), 200);
     }
 
     /**
@@ -104,7 +104,7 @@ class AuthController extends Controller
             );
 
             $this->dispatcher->dispatch($command);
-        }, 'Logged out successfully.', 200);
+        }, trans('auth-core::messages.logged_out_successfully'), 200);
     }
 
     /**
@@ -118,7 +118,7 @@ class AuthController extends Controller
 
             $this->dispatcher->dispatch($command);
 
-        }, 'If your email is registered, you will receive a reset link.', 200);
+        }, trans('auth-core::messages.password_reset_link_sent'), 200);
     }
 
     /**
@@ -136,7 +136,7 @@ class AuthController extends Controller
 
             return $this->dispatcher->dispatch($command);
 
-        }, 'Password has been reset successfully', 200);
+        }, trans('auth-core::messages.password_reset_successfully'), 200);
 
     }
 
@@ -157,7 +157,7 @@ class AuthController extends Controller
             return $this->dispatcher->dispatch($command);
 
 
-        }, 'Two factor authentication has been verified.', 200);
+        }, trans('auth-core::messages.two_factor_verified'), 200);
     }
 
     /**
@@ -172,7 +172,7 @@ class AuthController extends Controller
 
             return $this->dispatcher->dispatch($command);
 
-        }, 'Two factor authentication has been enabled.', 200);
+        }, trans('auth-core::messages.two_factor_enabled'), 200);
     }
 
     /**
@@ -190,7 +190,7 @@ class AuthController extends Controller
 
             return $this->dispatcher->dispatch($command);
 
-        }, 'Two factor authentication has been verified.', 200);
+        }, trans('auth-core::messages.two_factor_verified'), 200);
     }
 
     /**
@@ -208,7 +208,7 @@ class AuthController extends Controller
 
             return $this->dispatcher->dispatch($command);
 
-        }, 'Two factor authentication disabled successfully.', 200);
+        }, trans('auth-core::messages.two_factor_disabled'), 200);
     }
 
     /**
@@ -223,7 +223,7 @@ class AuthController extends Controller
             );
 
             return $this->dispatcher->dispatch($query);
-        }, 'Active sessions retrieved.', 200);
+        }, trans('auth-core::messages.active_sessions_retrieved'), 200);
     }
 
     /**
@@ -238,7 +238,7 @@ class AuthController extends Controller
             );
 
             $this->dispatcher->dispatch($command);
-        }, 'Session revoked successfully.', 200);
+        }, trans('auth-core::messages.session_revoked_successfully'), 200);
     }
 
     /**
@@ -253,6 +253,6 @@ class AuthController extends Controller
             );
 
             $this->dispatcher->dispatch($command);
-        }, 'All other sessions have been revoked.', 200);
+        }, trans('auth-core::messages.other_sessions_revoked'), 200);
     }
 }

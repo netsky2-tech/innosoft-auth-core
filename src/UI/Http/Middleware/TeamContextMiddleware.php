@@ -40,7 +40,7 @@ class TeamContextMiddleware
                 app(PermissionRegistrar::class)->setPermissionsTeamId($teamId);
             } else {
                 // Si intenta acceder a un equipo que no es suyo -> 403
-                abort(403, 'You do not belong to this team.');
+                abort(403, trans('auth-core::messages.user_not_in_team'));
             }
         }
 

@@ -101,4 +101,13 @@ return [
     'permissions_map' => [
         'system.maintenance',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Localization
+    |--------------------------------------------------------------------------
+    | The default locale for the package.
+    | If null, it will use the application's locale (config('app.locale')).
+    */
+    'locale' => null,
 ];

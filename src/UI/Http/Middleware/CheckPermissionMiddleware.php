@@ -13,7 +13,7 @@ class CheckPermissionMiddleware
     public function handle(Request $request, Closure $next, string $permission): Response
     {
         if (!Auth::check()) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
+            return response()->json(['message' => trans('auth-core::messages.unauthenticated')], 401);
         }
 
         /** @var User $user */
@@ -21,7 +21,7 @@ class CheckPermissionMiddleware
 
         if (!$user->can($permission)) {
             return response()->json([
-                'message' => 'Unauthorized. Missing permission: ' . $permission
+                'message' => trans('auth-core::messages.unauthorized_missing_permission', ['permission' => $permission])
             ], 403);
         }
 

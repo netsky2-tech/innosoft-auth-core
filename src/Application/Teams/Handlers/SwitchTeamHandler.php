@@ -23,7 +23,7 @@ final readonly class SwitchTeamHandler
         // Validate if the user belongs to the team
         if (!$this->teamValidator->validate($user->getId(), $command->teamId)) {
             throw ValidationException::withMessages([
-                'team_id' => ['User does not belong to this team.']
+                'team_id' => [trans('auth-core::messages.user_not_in_team')]
             ]);
         }
         

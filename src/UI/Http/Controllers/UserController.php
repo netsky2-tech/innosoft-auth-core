@@ -46,7 +46,7 @@ class UserController extends Controller
             $user = $this->dispatcher->dispatch($command);
 
             return $this->successResponse(new UserResource($user));
-        },'User successfully created.', 200);
+        }, trans('auth-core::messages.user_created_successfully'), 200);
     }
 
     /**
@@ -66,7 +66,7 @@ class UserController extends Controller
             return $this->dispatcher->dispatch($command);
 
             //return $this->successResponse(new UserResource($user));
-        }, 'User successfully updated.', 200);
+        }, trans('auth-core::messages.user_updated_successfully'), 200);
     }
 
     /**
@@ -82,7 +82,7 @@ class UserController extends Controller
             $this->dispatcher->dispatch($command);
 
             return $this->successResponse();
-        }, 'User successfully deleted.', 204);
+        }, trans('auth-core::messages.user_deleted_successfully'), 204);
 
     }
 
@@ -98,7 +98,7 @@ class UserController extends Controller
             $user = $this->dispatcher->dispatch($query);
 
             return $this->successResponse(new UserResource($user));
-        }, 'User successfully retrieved.', 200);
+        }, trans('auth-core::messages.user_retrieved_successfully'), 200);
 
     }
 
@@ -121,6 +121,6 @@ class UserController extends Controller
             $collection = UserResource::collection($paginator);
 
             return $this->successResponse($collection->response()->getData(true));
-        }, 'Users retrieved.', 200);
+        }, trans('auth-core::messages.users_retrieved'), 200);
     }
 }

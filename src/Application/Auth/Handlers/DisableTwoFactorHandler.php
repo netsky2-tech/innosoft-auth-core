@@ -24,7 +24,7 @@ final readonly class DisableTwoFactorHandler
         // 1. Validate actual password
         if (!Hash::check($command->currentPassword, $user->getPasswordHash())) {
             throw ValidationException::withMessages([
-                'current_password' => 'The provided password does not match your current password.'
+                'current_password' => trans('auth-core::messages.password_mismatch')
             ]);
         }
 

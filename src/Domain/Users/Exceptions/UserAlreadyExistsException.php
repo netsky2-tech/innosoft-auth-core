@@ -6,6 +6,6 @@ class UserAlreadyExistsException extends DomainException
 {
     public function __construct(string $email)
     {
-        parent::__construct("User with email {$email} already exists.", 409); // 409 Conflict
+        parent::__construct(trans('auth-core::messages.user_already_exists', ['email' => $email]), 409); // 409 Conflict
     }
 }

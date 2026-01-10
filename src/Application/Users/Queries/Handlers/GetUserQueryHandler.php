@@ -24,7 +24,7 @@ final readonly class GetUserQueryHandler
         $user = $this->userRepository->findById($query->userId);
 
         if (!$user) {
-            throw new UserNotFoundException("User with ID {$query->userId} not found.");
+            throw new UserNotFoundException($query->userId);
         }
 
         return UserView::fromDomain($user);

@@ -47,7 +47,7 @@ class CreateUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.unique' => 'This email already exists in the system.',
+            'email.unique' => trans('auth-core::messages.email_already_exists'),
         ];
     }
 }

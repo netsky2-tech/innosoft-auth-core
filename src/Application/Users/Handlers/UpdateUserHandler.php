@@ -31,7 +31,7 @@ final readonly class UpdateUserHandler
         $user = $this->userRepository->findById($command->userId);
 
         if (!$user) {
-            throw new UserNotFoundException("User with ID {$command->userId} not found.");
+            throw new UserNotFoundException($command->userId);
         }
 
         return DB::transaction(function () use ($user, $command) {
@@ -69,7 +69,7 @@ final readonly class UpdateUserHandler
         }
 
         if ($this->userRepository->existsByEmail($newEmail->getValue())) {
-            throw new UserAlreadyExistsException("The email {$newEmail} is already taken.");
+            throw new UserAlreadyExistsException($newEmail->getValue());
         }
 
         $user->updateEmail($newEmail);

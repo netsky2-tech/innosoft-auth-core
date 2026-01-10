@@ -29,11 +29,11 @@ trait HandlesApiExecution
             return $this->errorResponse($e->getMessage(), 422, 'VALIDATION_ERROR', $e->errors());
 
         } catch (AuthenticationException $e) {
-            return $this->errorResponse('Unauthenticated.', 401, 'UNAUTHENTICATED');
+            return $this->errorResponse(trans('auth-core::messages.unauthenticated'), 401, 'UNAUTHENTICATED');
 
         } catch (ModelNotFoundException $e) {
             // Captura errores nativos de Eloquent si se escapan de los handlers
-            return $this->errorResponse('Resource not found.', 404, 'NOT_FOUND');
+            return $this->errorResponse(trans('auth-core::messages.resource_not_found'), 404, 'NOT_FOUND');
 
         } catch (DomainException $e) {
             // Captura excepciones de negocio (ej. InvalidCredentials, TwoFactorRequired)
@@ -52,7 +52,7 @@ trait HandlesApiExecution
 
             // Respuesta segura para el cliente
             $message = app()->environment('production')
-                ? 'Internal Server Error'
+                ? trans('auth-core::messages.internal_server_error')
                 : $e->getMessage();
 
             return $this->errorResponse($message, 500, 'SERVER_ERROR');

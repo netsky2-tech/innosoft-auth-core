@@ -28,11 +28,11 @@ final readonly class ResetPasswordHandler
 
         if (!$user) {
             // Timing attack prevention: simulate work or generic error
-            throw new Exception('Invalid email or token.');
+            throw new Exception(trans('auth-core::messages.invalid_email_or_token'));
         }
 
         if (!$this->tokenService->validateToken($user, $command->token)) {
-            throw new Exception('Invalid email or token.');
+            throw new Exception(trans('auth-core::messages.invalid_email_or_token'));
         }
 
         // Update Password

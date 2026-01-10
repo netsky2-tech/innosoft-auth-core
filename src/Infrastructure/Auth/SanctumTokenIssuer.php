@@ -16,7 +16,7 @@ class SanctumTokenIssuer implements TokenIssuer
 
         if (!$eloquentUser) {
             // extreme case: exist on repository but not in DB
-            throw new \RuntimeException("User persistence mismatch");
+            throw new \RuntimeException(trans('auth-core::messages.user_persistence_mismatch'));
         }
 
         // Use Sanctum to generate token

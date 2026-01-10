@@ -14,11 +14,11 @@ final class EmailAddress
     private function validate(string $email): void
     {
         if (empty($email)) {
-            throw new InvalidEmailException('Email cannot be empty');
+            throw new InvalidEmailException(trans('auth-core::messages.email_empty'));
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new InvalidEmailException("Invalid email format: {$email}");
+            throw new InvalidEmailException(trans('auth-core::messages.email_format_invalid', ['email' => $email]));
         }
     }
     public function getValue(): string

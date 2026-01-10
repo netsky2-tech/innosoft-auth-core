@@ -14,14 +14,14 @@ final readonly class SyncRolePermissionsHandler
     ) {}
 
     /**
-     * @throws RoleNotFoundException
+     * @throws RoleNotFoundException|\Throwable
      */
     public function handle(SyncRolePermissionsCommand $command): void
     {
         $role = $this->roleRepository->findByName($command->roleName, $command->guardName);
 
         if (!$role) {
-            throw new RoleNotFoundException("Role {$command->roleName} not found");
+            throw new RoleNotFoundException($command->roleName);
         }
 
         DB::transaction(function () use ($command) {

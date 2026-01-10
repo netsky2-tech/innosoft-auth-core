@@ -109,6 +109,19 @@ class AuthCoreServiceProvider extends ServiceProvider
         // Publish migrations
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
+        // Load translations
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'auth-core');
+
+        // Publish translations
+        $this->publishes([
+            __DIR__.'/../resources/lang' => resource_path('lang/vendor/auth-core'),
+        ], 'auth-core-translations');
+
+        // Set locale if configured
+        if ($locale = config('auth-core.locale')) {
+            app()->setLocale($locale);
+        }
+
         // Load API routes
         $this->registerRoutes();
 

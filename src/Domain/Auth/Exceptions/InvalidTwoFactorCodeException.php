@@ -6,6 +6,6 @@ class InvalidTwoFactorCodeException extends \Exception
 {
     public function __construct()
     {
-        parent::__construct("The provided two factor authentication code was invalid.", 422);
+        parent::__construct(trans('auth-core::messages.invalid_two_factor_code'), 422);
     }
 }

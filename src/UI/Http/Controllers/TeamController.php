@@ -27,7 +27,7 @@ class TeamController extends Controller
         return $this->safeExecute(function () use ($request) {
             $query = new ListUserTeamsQuery($request->user()->id);
             return $this->dispatcher->dispatch($query);
-        }, 'Teams retrieved successfully.', 200);
+        }, trans('auth-core::messages.teams_retrieved_successfully'), 200);
     }
 
     /**
@@ -44,6 +44,6 @@ class TeamController extends Controller
             );
 
             return $this->dispatcher->dispatch($command);
-        }, 'Team switched successfully.', 200);
+        }, trans('auth-core::messages.team_switched_successfully'), 200);
     }
 }

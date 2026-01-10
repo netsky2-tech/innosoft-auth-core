@@ -53,7 +53,7 @@ class AuditController extends Controller
             // La consistencia con el código existente es prioritaria según las instrucciones.
             
             return $this->successResponse($paginatedData);
-        }, 'Audit logs retrieved.', 200);
+        }, trans('auth-core::messages.audit_logs_retrieved'), 200);
     }
 
     /**
@@ -78,6 +78,6 @@ class AuditController extends Controller
             $paginatedData = $collection->response()->getData(true);
 
             return $this->successResponse($paginatedData);
-        }, 'User audit logs retrieved.', 200);
+        }, trans('auth-core::messages.user_audit_logs_retrieved'), 200);
     }
 }

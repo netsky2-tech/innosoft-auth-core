@@ -28,7 +28,7 @@ readonly class EnableTwoFactorHandler
         $user = $this->userRepository->findById($command->userId);
 
         if (!$user) {
-           throw new UserNotFoundException("User with id {$command->userId} not found.");
+           throw new UserNotFoundException($command->userId);
         }
 
         return DB::transaction(function () use ($command, $user) {

@@ -31,7 +31,7 @@ final readonly class AssignRoleToUserHandler
 
         $roleExists = $this->roleRepository->exists($command->roleName, $command->guardName);
         if (!$roleExists) {
-            throw new RoleNotFoundException("Role {$command->roleName} not found");
+            throw new RoleNotFoundException($command->roleName);
         }
 
         DB::transaction(function () use ($user, $command) {
