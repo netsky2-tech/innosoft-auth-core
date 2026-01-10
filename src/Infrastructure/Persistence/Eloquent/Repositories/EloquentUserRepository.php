@@ -30,7 +30,7 @@ readonly class EloquentUserRepository implements UserRepository
         // Mapping: Domain -> Eloquent (Active Record)
         $recoveryCodes = $user->getTwoFactorRecoveryCodes();
 
-        $this->model->updateOrCreate(
+        $this->model->withTrashed()->updateOrCreate(
             ['id' => $user->getId()],
             [
                 'name' => $user->getName(),
@@ -39,6 +39,7 @@ readonly class EloquentUserRepository implements UserRepository
                 'two_factor_secret' => $user->getTwoFactorSecret(),
                 'two_factor_confirmed_at' => $user->getTwoFactorConfirmed() ? now() : null,
                 'two_factor_recovery_codes' => $recoveryCodes ? json_encode($recoveryCodes) : null,
+                'deleted_at' => $user->getDeletedAt(),
             ]
         );
     }
@@ -106,6 +107,14 @@ readonly class EloquentUserRepository implements UserRepository
         $this->model->where('id',$id)->delete();
     }
 
+    public function assignRole(string $userId, string $roleName, string $guardName): void
+    {
+        $user = $this->model->find($userId);
+        if ($user) {
+            $user->assignRole($roleName);
+        }
+    }
+
     /**
      * @param Model $eloquentUser
      * @return User
@@ -127,6 +136,7 @@ readonly class EloquentUserRepository implements UserRepository
             $eloquentUser->two_factor_confirmed_at !== null,
             $recoveryCodes,
             $eloquentUser->created_at?->toDateTimeImmutable(),
+            $eloquentUser->deleted_at?->toDateTimeImmutable(),
         );
     }
 

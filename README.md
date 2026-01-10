@@ -163,6 +163,13 @@ Content-Type: application/json
     "password": "SecurePassword123!"
 }
 ```
+
+Eliminar Usuario (Soft Delete):
+```http
+DELETE /api/v1/users/{id}
+```
+*Nota: La eliminación es lógica (Soft Delete). El usuario se marca como inactivo pero los datos persisten.*
+
 ---
 
 ## v0.3.0: Sistema RBAC (Roles & Permissions)

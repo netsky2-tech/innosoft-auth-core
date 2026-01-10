@@ -70,8 +70,8 @@ class UserController extends Controller
     }
 
     /**
-     * Permanently removes a user from the system.
-     * This action is irreversible and triggers domain events for user deletion.
+     * Soft deletes a user from the system.
+     * This action marks the user as inactive but retains the data.
      */
     public function destroy(string $id): JsonResponse
     {

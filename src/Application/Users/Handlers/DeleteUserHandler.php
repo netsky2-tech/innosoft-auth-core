@@ -2,14 +2,12 @@
 
 namespace InnoSoft\AuthCore\Application\Users\Handlers;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Event;
 use InnoSoft\AuthCore\Application\Users\Commands\DeleteUserCommand;
 use InnoSoft\AuthCore\Domain\Shared\DomainEventBus;
-use InnoSoft\AuthCore\Domain\Users\Events\UserDeleted;
 use InnoSoft\AuthCore\Domain\Users\Exceptions\UserNotFoundException;
 use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
+use Throwable;
 
 final readonly class DeleteUserHandler
 {
@@ -20,6 +18,7 @@ final readonly class DeleteUserHandler
 
     /**
      * @throws UserNotFoundException
+     * @throws Throwable
      */
     public function __invoke(DeleteUserCommand $command): void
     {
@@ -33,7 +32,7 @@ final readonly class DeleteUserHandler
 
             $user->delete();
 
-            $this->userRepository->delete($user->getId());
+            $this->userRepository->save($user);
 
             $this->domainEventBus->publish(...$user->pullDomainEvents());
         });

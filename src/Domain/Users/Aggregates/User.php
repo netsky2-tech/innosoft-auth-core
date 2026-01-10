@@ -3,7 +3,6 @@
 namespace InnoSoft\AuthCore\Domain\Users\Aggregates;
 
 use DateTimeImmutable;
-use DateTimeInterface;
 use InnoSoft\AuthCore\Domain\Shared\HasDomainEvents;
 use InnoSoft\AuthCore\Domain\Users\Events\PasswordChanged;
 use InnoSoft\AuthCore\Domain\Users\Events\RoleAssigned;
@@ -28,6 +27,7 @@ class User
         private ?bool                       $twoFactorConfirmed,
         private ?array                      $twoFactorRecoveryCodes,
         private ?DateTimeImmutable $createdAt,
+        private ?DateTimeImmutable $deletedAt = null,
     ){}
 
 
@@ -41,7 +41,7 @@ class User
         ?string $twoFactorRecoveryCodes = null,
         ?DateTimeImmutable $createdAt = null
     ): self {
-        $user = new self($id, $name, $email, $passwordHash, $twoFactorSecret, $twoFactorConfirmed, $twoFactorRecoveryCodes, $createdAt);
+        $user = new self($id, $name, $email, $passwordHash, $twoFactorSecret, $twoFactorConfirmed, $twoFactorRecoveryCodes, $createdAt, null);
 
         // register domain event
         $user->record(new UserRegistered($id, $email->getValue()));
@@ -61,7 +61,8 @@ class User
         ?string $twoFactorSecret,
         bool $twoFactorConfirmed,
         ?string $twoFactorRecoveryCodes,
-        ?DateTimeImmutable $createdAt
+        ?DateTimeImmutable $createdAt,
+        ?DateTimeImmutable $deletedAt = null
     ): self {
         // create instance without dispatch event
         return new self(
@@ -72,7 +73,8 @@ class User
             $twoFactorSecret,
             $twoFactorConfirmed,
             $twoFactorRecoveryCodes,
-            $createdAt
+            $createdAt,
+            $deletedAt
         );
     }
 
@@ -143,6 +145,8 @@ class User
     {
         // if ($this->hasDebt()) { throw new CannotDeleteUserWithDebtException(); }
 
+        $this->deletedAt = new DateTimeImmutable();
+
         $this->record(new UserDeleted(
             $this->id,
             $this->email->getValue()
@@ -208,5 +212,15 @@ class User
     public function setCreatedAt(?DateTimeImmutable $createdAt): void
     {
         $this->createdAt = $createdAt;
+    }
+
+    public function getDeletedAt(): ?DateTimeImmutable
+    {
+        return $this->deletedAt;
+    }
+
+    public function isDeleted(): bool
+    {
+        return $this->deletedAt !== null;
     }
 }
