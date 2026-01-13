@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.0.0 - 2025-01-12
+## v1.1.0 - 2025-01-12
 ### Added
 - **Multitenancy Support:** Implementación completa de autorización contextual por equipos (Teams).
   - Middleware `auth.context` para aislamiento lógico.
@@ -18,6 +18,7 @@
 - **Architecture:**
   - Bus de comandos dinámico con autodiscovery.
   - Eventos de dominio para todas las acciones críticas (EDA).
+- **Testing:** Agregados +40 tests cubriendo casos de uso críticos.
 
 ### Changed
 - Refactorización masiva a Arquitectura Hexagonal estricta.
