@@ -7,10 +7,17 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use InnoSoft\AuthCore\Domain\Auth\Events\SecurityAlert;
 use InnoSoft\AuthCore\Domain\Auth\Events\UserLoggedIn;
+use InnoSoft\AuthCore\Domain\Permissions\Events\PermissionDeleted;
+use InnoSoft\AuthCore\Domain\Permissions\Events\PermissionRegistered;
+use InnoSoft\AuthCore\Domain\Permissions\Events\PermissionUpdated;
+use InnoSoft\AuthCore\Domain\Roles\Events\RoleDeleted;
+use InnoSoft\AuthCore\Domain\Roles\Events\RoleRegistered;
+use InnoSoft\AuthCore\Domain\Roles\Events\RoleUpdated;
 use InnoSoft\AuthCore\Domain\Shared\Services\AuditLogger;
 use InnoSoft\AuthCore\Domain\Users\Events\PasswordChanged;
 use InnoSoft\AuthCore\Domain\Users\Events\PasswordResetCompleted;
 use InnoSoft\AuthCore\Domain\Users\Events\RoleAssigned;
+use InnoSoft\AuthCore\Domain\Users\Events\RoleRevoked;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorDisabled;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnrollmentConfirmed;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnrollmentInitiated;
@@ -127,6 +134,65 @@ readonly class SecurityEventSubscriber implements ShouldQueue
         ]);
     }
 
+    public function handleRoleRevoked(RoleRevoked $event): void
+    {
+        $this->logger->logSecurityEvent('user.role.revoked', [
+            'user_id' => $event->userId(),
+            'role_id' => $event->roleId(),
+            'role_name' => $event->roleName(),
+        ]);
+    }
+
+    public function handleRoleRegistered(RoleRegistered $event): void
+    {
+        $this->logger->logSecurityEvent('role.registered', [
+            'role_name' => $event->role(),
+            'guard_name' => $event->guardName(),
+        ]);
+    }
+
+    public function handleRoleUpdated(RoleUpdated $event): void
+    {
+        $this->logger->logSecurityEvent('role.updated', [
+            'role_id' => $event->roleId(),
+            'old_name' => $event->oldName(),
+            'new_name' => $event->newName(),
+        ]);
+    }
+
+    public function handleRoleDeleted(RoleDeleted $event): void
+    {
+        $this->logger->logSecurityEvent('role.deleted', [
+            'role_name' => $event->roleName(),
+            'guard_name' => $event->guardName(),
+        ]);
+    }
+
+    public function handlePermissionRegistered(PermissionRegistered $event): void
+    {
+        $this->logger->logSecurityEvent('permission.registered', [
+            'permission_name' => $event->permissionName(),
+            'guard_name' => $event->guardName(),
+        ]);
+    }
+
+    public function handlePermissionUpdated(PermissionUpdated $event): void
+    {
+        $this->logger->logSecurityEvent('permission.updated', [
+            'permission_id' => $event->permissionId(),
+            'old_name' => $event->oldName(),
+            'new_name' => $event->newName(),
+        ]);
+    }
+
+    public function handlePermissionDeleted(PermissionDeleted $event): void
+    {
+        $this->logger->logSecurityEvent('permission.deleted', [
+            'permission_name' => $event->permissionName(),
+            'guard_name' => $event->guardName(),
+        ]);
+    }
+
     public function handleSecurityAlert(SecurityAlert $event): void
     {
         $this->logger->logSecurityEvent('security.alert', [
@@ -152,6 +218,13 @@ readonly class SecurityEventSubscriber implements ShouldQueue
             UserEmailChanged::class => 'handleEmailChanged',
             UserNameChanged::class => 'handleNameChanged',
             RoleAssigned::class => 'handleRoleAssigned',
+            RoleRevoked::class => 'handleRoleRevoked',
+            RoleRegistered::class => 'handleRoleRegistered',
+            RoleUpdated::class => 'handleRoleUpdated',
+            RoleDeleted::class => 'handleRoleDeleted',
+            PermissionRegistered::class => 'handlePermissionRegistered',
+            PermissionUpdated::class => 'handlePermissionUpdated',
+            PermissionDeleted::class => 'handlePermissionDeleted',
             SecurityAlert::class => 'handleSecurityAlert',
         ];
     }

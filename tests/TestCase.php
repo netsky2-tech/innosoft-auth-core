@@ -148,4 +148,38 @@ abstract class TestCase extends Orchestra
 
         $app['config']->set('app.key', 'base64:6Cu/ozj4w03HgX4pREMSTJrycv1qQxQzJw03HgX4pRE=');
     }
+
+    protected function authenticateUser(array $permissions = []): User
+    {
+        $user = User::factory()->create();
+        
+        if (!empty($permissions)) {
+            foreach ($permissions as $permissionName) {
+                \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $permissionName, 'guard_name' => 'api']);
+            }
+            $user->givePermissionTo($permissions);
+        }
+
+        \Laravel\Sanctum\Sanctum::actingAs($user, ['*']);
+
+        return $user;
+    }
+
+    protected function createUser(array $attributes = []): \InnoSoft\AuthCore\Domain\Users\Aggregates\User
+    {
+        $eloquentUser = User::factory()->create($attributes);
+        
+        // Return Domain User
+        return \InnoSoft\AuthCore\Domain\Users\Aggregates\User::fromPersistence(
+            (string) $eloquentUser->id,
+            $eloquentUser->name,
+            $eloquentUser->email,
+            $eloquentUser->password,
+            $eloquentUser->two_factor_secret,
+            $eloquentUser->two_factor_confirmed_at !== null,
+            $eloquentUser->two_factor_recovery_codes ? json_decode($eloquentUser->two_factor_recovery_codes, true) : null,
+            $eloquentUser->created_at?->toDateTimeImmutable(),
+            $eloquentUser->deleted_at?->toDateTimeImmutable(),
+        );
+    }
 }

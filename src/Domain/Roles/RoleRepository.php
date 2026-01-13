@@ -8,7 +8,7 @@ use Spatie\Permission\Models\Role as SpatieRole;
 interface RoleRepository
 {
     public function save(RoleDTO $roleDto): void;
-    public function findById(string $id): \Spatie\Permission\Contracts\Role|SpatieRole;
+    public function findById(string $id): \Spatie\Permission\Contracts\Role|SpatieRole|null;
     public function findByName(string $name, string $guardName): \Spatie\Permission\Contracts\Role|SpatieRole|null;
     public function delete(string $id): ?bool;
     public function syncPermissions(string $roleName, array $permissionNames, string $guardName): void;

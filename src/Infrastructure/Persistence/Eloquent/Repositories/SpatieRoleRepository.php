@@ -22,25 +22,35 @@ class SpatieRoleRepository implements RoleRepository
         }
     }
 
-    public function findById(string $id): \Spatie\Permission\Contracts\Role|SpatieRole
+    public function findById(string $id): \Spatie\Permission\Contracts\Role|SpatieRole|null
     {
-        return SpatieRole::findById($id);
+        return SpatieRole::find($id);
+    }
+
+    public function findByName(string $name, string $guardName): \Spatie\Permission\Contracts\Role|SpatieRole|null
+    {
+        return SpatieRole::where('name', $name)
+            ->where('guard_name', $guardName)
+            ->first();
     }
 
     public function delete(string $id): ?bool
     {
-        return (new \Spatie\Permission\Models\Role)->delete($id);
+        $role = SpatieRole::find($id);
+        return $role ? $role->delete() : false;
     }
 
     public function syncPermissions(string $roleName, array $permissionNames, string $guardName): void
     {
-        $role = SpatieRole::findByName($roleName, $guardName);
-        $role->syncPermissions($permissionNames);
+        $role = $this->findByName($roleName, $guardName);
+        if ($role) {
+            $role->syncPermissions($permissionNames);
+        }
     }
 
     public function exists(string $name, string $guardName): bool
     {
-        return SpatieRole::where($name, $name)
+        return SpatieRole::where('name', $name)
             ->where('guard_name', $guardName)
             ->exists();
     }

@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use InnoSoft\AuthCore\UI\Http\Controllers\AuthController;
+use InnoSoft\AuthCore\UI\Http\Controllers\PermissionController;
+use InnoSoft\AuthCore\UI\Http\Controllers\RoleController;
 use InnoSoft\AuthCore\UI\Http\Controllers\UserController;
 use InnoSoft\AuthCore\UI\Http\Controllers\TeamController;
 use InnoSoft\AuthCore\UI\Http\Controllers\AuditController;
@@ -68,6 +70,21 @@ Route::name('api.v1.')->group(function () {
 
         // --- User Management (Admin/Self) ---
         Route::apiResource('users', UserController::class);
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::post('{id}/roles', [UserController::class, 'assignRole'])->name('roles.assign');
+            Route::delete('{id}/roles', [UserController::class, 'revokeRole'])->name('roles.revoke');
+        });
+
+        // --- Role Management ---
+        Route::apiResource('roles', RoleController::class);
+        Route::prefix('roles')->name('roles.')->group(function () {
+            Route::post('{name}/permissions/sync', [RoleController::class, 'syncPermissions'])->name('permissions.sync');
+            Route::post('{name}/permissions', [RoleController::class, 'givePermission'])->name('permissions.give');
+            Route::delete('{name}/permissions', [RoleController::class, 'revokePermission'])->name('permissions.revoke');
+        });
+
+        // --- Permission Management ---
+        Route::apiResource('permissions', PermissionController::class);
 
         // --- Audit Logs ---
         Route::prefix('audit')->name('audit.')->group(function () {

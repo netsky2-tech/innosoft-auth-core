@@ -115,6 +115,14 @@ readonly class EloquentUserRepository implements UserRepository
         }
     }
 
+    public function removeRole(string $userId, string $roleName, string $guardName): void
+    {
+        $user = $this->model->find($userId);
+        if ($user) {
+            $user->removeRole($roleName);
+        }
+    }
+
     /**
      * @param Model $eloquentUser
      * @return User

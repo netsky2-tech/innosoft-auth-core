@@ -15,9 +15,11 @@ test('it normalizes the email address to lowercase', function () {
 });
 
 test('it throws exception for invalid email format', function () {
-    new EmailAddress('invalid-email');
-})->throws(InvalidEmailException::class);
+    expect(fn() => new EmailAddress('invalid-email'))
+        ->toThrow(InvalidEmailException::class);
+});
 
 test('it throws exception for empty email', function () {
-    new EmailAddress('');
-})->throws(InvalidEmailException::class);
+    expect(fn() => new EmailAddress(''))
+        ->toThrow(InvalidEmailException::class);
+});

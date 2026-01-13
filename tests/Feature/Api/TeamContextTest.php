@@ -31,7 +31,7 @@ class TeamContextTest extends TestCase
     #[Test]
     public function it_can_list_user_teams()
     {
-        $user = $this->createUser();
+        $user = $this->createEloquentUser();
         
         Sanctum::actingAs($user, ['*']);
 
@@ -44,7 +44,7 @@ class TeamContextTest extends TestCase
     #[Test]
     public function it_fails_to_switch_team_if_user_does_not_belong_to_it()
     {
-        $user = $this->createUser();
+        $user = $this->createEloquentUser();
         Sanctum::actingAs($user, ['*']);
 
         // Ensure validator returns false (default behavior of HostTeamMembershipValidator for test user)
@@ -67,21 +67,20 @@ class TeamContextTest extends TestCase
             $mock->shouldReceive('validate')->andReturn(true);
         });
 
-        $user = $this->createUser();
+        $user = $this->createEloquentUser();
         Sanctum::actingAs($user, ['*']);
 
         $teamId = '123';
         $response = $this->postJson(route('api.v1.teams.switch', ['id' => $teamId]));
 
+        // The ApiResponse trait merges access_token at the root level if present
         $response->assertStatus(200)
                  ->assertJsonStructure([
-                     'data' => [
-                         'access_token',
-                         'team_id'
-                     ]
+                     'access_token',
+                     'team_id'
                  ]);
                  
-        $this->assertEquals($teamId, $response->json('data.team_id'));
+        $this->assertEquals($teamId, $response->json('team_id'));
     }
 
     #[Test]
@@ -92,7 +91,7 @@ class TeamContextTest extends TestCase
             $mock->shouldReceive('validate')->andReturn(true);
         });
 
-        $user = $this->createUser();
+        $user = $this->createEloquentUser();
         
         // Use an integer ID to match the unsignedBigInteger column in the test DB schema
         $teamId = 555;

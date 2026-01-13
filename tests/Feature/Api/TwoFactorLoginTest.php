@@ -17,7 +17,7 @@ test('user with 2fa enabled receives challenge instead of token', function () {
     ->assertJson([
         'success' => true,
         'status' => '2fa_required',
-        'message' => 'Two factor authentication required.',
+        'message' => 'Two-factor authentication required.',
     ])->assertJsonStructure([
         'success',
         'status',
@@ -51,8 +51,6 @@ test('user can complete login with valid otp', function () {
         ->assertJsonStructure([
             'success',
             'message',
-            'data' => [
-                'access_token',
-            ]
+            'access_token'
         ]);
 });

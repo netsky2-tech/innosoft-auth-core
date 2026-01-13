@@ -10,6 +10,14 @@ use InnoSoft\AuthCore\Domain\Users\Exceptions\InvalidCredentialsException;
 use InnoSoft\AuthCore\Domain\Users\Repositories\UserRepository;
 use InnoSoft\AuthCore\Domain\Users\ValueObjects\EmailAddress;
 
+beforeEach(function () {
+    $requestMock = Mockery::mock(\Illuminate\Http\Request::class);
+    $requestMock->shouldReceive('ip')->andReturn('127.0.0.1');
+    $requestMock->shouldReceive('userAgent')->andReturn('TestAgent');
+    $requestMock->shouldReceive('setUserResolver')->with(Mockery::any());
+    \Illuminate\Container\Container::getInstance()->instance('request', $requestMock);
+});
+
 test(/**
  * @throws TwoFactorRequiredException
  * @throws InvalidCredentialsException
@@ -48,6 +56,8 @@ test(/**
     $eloquentUserMock->id = $userId;
     // Mockear métodos que Laravel podría llamar
     $eloquentUserMock->shouldReceive('getAuthIdentifier')->andReturn($userId);
+    $eloquentUserMock->shouldReceive('getRoleNames')->andReturn(collect([]));
+    $eloquentUserMock->shouldReceive('getAllPermissions')->andReturn(collect([]));
 
     // --- Mocks de Dependencias (El Core) ---
 
@@ -81,9 +91,18 @@ test(/**
                 && $event->user === $eloquentUserMock
                 && $event->guard === 'sanctum';
         });
+    
+    // Also expect UserLoggedIn event
+    \Illuminate\Support\Facades\Event::shouldReceive('dispatch')
+        ->once()
+        ->withArgs(function ($event) {
+            return $event instanceof \InnoSoft\AuthCore\Domain\Auth\Events\UserLoggedIn;
+        });
 
     // Mockear el servicio 2FA
     $twoFactorService = Mockery::mock(\InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorChallengeService::class);
+
+    // Mockear Request facade - handled in beforeEach
 
     // 2. Act
     $command = new LoginUserCommand('john@innosoft.com', $password, $deviceName);
@@ -111,6 +130,13 @@ test('it throws invalid credentials exception if user not found', function () {
         ->once()
         ->withArgs(function ($event) {
             return $event instanceof \Illuminate\Auth\Events\Failed;
+        });
+        
+    // Mock Event dispatch for SecurityAlert event
+    \Illuminate\Support\Facades\Event::shouldReceive('dispatch')
+        ->once()
+        ->withArgs(function ($event) {
+            return $event instanceof \InnoSoft\AuthCore\Domain\Auth\Events\SecurityAlert;
         });
 
     $tokenIssuer = Mockery::mock(TokenIssuer::class);
@@ -144,6 +170,13 @@ test('it throws invalid credentials exception if password does not match', funct
         ->once()
         ->withArgs(function ($event) {
             return $event instanceof \Illuminate\Auth\Events\Failed;
+        });
+        
+    // Mock Event dispatch for SecurityAlert event
+    \Illuminate\Support\Facades\Event::shouldReceive('dispatch')
+        ->once()
+        ->withArgs(function ($event) {
+            return $event instanceof \InnoSoft\AuthCore\Domain\Auth\Events\SecurityAlert;
         });
 
     $tokenIssuer = Mockery::mock(TokenIssuer::class);

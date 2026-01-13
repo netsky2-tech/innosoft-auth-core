@@ -6,6 +6,7 @@ use DateTimeImmutable;
 use InnoSoft\AuthCore\Domain\Shared\HasDomainEvents;
 use InnoSoft\AuthCore\Domain\Users\Events\PasswordChanged;
 use InnoSoft\AuthCore\Domain\Users\Events\RoleAssigned;
+use InnoSoft\AuthCore\Domain\Users\Events\RoleRevoked;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorDisabled;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnrollmentConfirmed;
 use InnoSoft\AuthCore\Domain\Users\Events\TwoFactorEnrollmentInitiated;
@@ -158,6 +159,15 @@ class User
     public function notifyRoleAssigned(string $roleId, string $roleName): void
     {
         $this->record(new RoleAssigned(
+            $this->id,
+            $roleId,
+            $roleName
+        ));
+    }
+
+    public function notifyRoleRevoked(string $roleId, string $roleName): void
+    {
+        $this->record(new RoleRevoked(
             $this->id,
             $roleId,
             $roleName

@@ -24,6 +24,8 @@ interface UserRepository
 
     public function assignRole(string $userId, string $roleName, string $guardName): void;
 
+    public function removeRole(string $userId, string $roleName, string $guardName): void;
+
     public function search(
         int     $page,
         int     $perPage,

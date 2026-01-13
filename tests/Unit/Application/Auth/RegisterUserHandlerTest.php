@@ -39,7 +39,8 @@ test('it throws exception if user already exists', function () {
     // Arrange
     $repository = Mockery::mock(UserRepository::class);
     // Simualte that findByEmail return something (not null)
-    $repository->shouldReceive('findByEmail')->andReturn(Mockery::mock(User::class));
+    $userMock = Mockery::mock(User::class);
+    $repository->shouldReceive('findByEmail')->andReturn($userMock);
 
     $command = new RegisterUserCommand('John', 'exists@innosoft.com', 'secret');
     $handler = new RegisterUserHandler($repository);

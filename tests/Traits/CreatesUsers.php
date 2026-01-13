@@ -6,7 +6,7 @@ use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Models\User;
 
 trait CreatesUsers
 {
-    protected function createUser(array $attributes = []): User
+    protected function createEloquentUser(array $attributes = []): User
     {
         return User::factory()->create($attributes);
     }

@@ -147,3 +147,17 @@ src/
 - Poner lógica de validación en el Controller (usar FormRequests).
 - Ejecutar queries SQL en las Vistas/Resources JSON.
 - Dejar dd() o dump() en el código.
+
+## 15. Testing Guidelines
+- When creating tests, always use the `#[Test]` attribute instead of the `@test` annotation or the `test_` prefix for methods.
+- Ensure that test methods are public and void.
+- Example:
+  ```php
+  use PHPUnit\Framework\Attributes\Test;
+
+  #[Test]
+  public function it_can_do_something(): void
+  {
+      // ...
+  }
+  ```

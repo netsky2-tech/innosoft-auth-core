@@ -16,7 +16,7 @@ final readonly class SyncRolePermissionsHandler
     /**
      * @throws RoleNotFoundException|\Throwable
      */
-    public function handle(SyncRolePermissionsCommand $command): void
+    public function __invoke(SyncRolePermissionsCommand $command): void
     {
         $role = $this->roleRepository->findByName($command->roleName, $command->guardName);
 

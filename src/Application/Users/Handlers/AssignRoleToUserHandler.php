@@ -22,7 +22,7 @@ final readonly class AssignRoleToUserHandler
      * @throws RoleNotFoundException
      * @throws \Throwable
      */
-    public function handle(AssignRoleToUserCommand $command): void
+    public function __invoke(AssignRoleToUserCommand $command): void
     {
         $user = $this->userRepository->findById($command->userId);
         if (!$user) {

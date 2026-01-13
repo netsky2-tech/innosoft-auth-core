@@ -108,6 +108,22 @@ Eventos Disponibles:
 
 - InnoSoft\AuthCore\Domain\Users\Events\UserDeleted
 
+- InnoSoft\AuthCore\Domain\Users\Events\RoleAssigned
+
+- InnoSoft\AuthCore\Domain\Users\Events\RoleRevoked
+
+- InnoSoft\AuthCore\Domain\Roles\Events\RoleRegistered
+
+- InnoSoft\AuthCore\Domain\Roles\Events\RoleUpdated
+
+- InnoSoft\AuthCore\Domain\Roles\Events\RoleDeleted
+
+- InnoSoft\AuthCore\Domain\Permissions\Events\PermissionRegistered
+
+- InnoSoft\AuthCore\Domain\Permissions\Events\PermissionUpdated
+
+- InnoSoft\AuthCore\Domain\Permissions\Events\PermissionDeleted
+
 Ejemplo de Integración (En tu App):
 ``` php
 // app/Providers/EventServiceProvider.php
@@ -126,6 +142,7 @@ protected $listen = [
 El paquete incluye un sistema de Logging de Auditoría automático.
 
 - Seguridad: Registra cambios de password, email, logins fallidos y exitosos.
+- Gestión de Roles y Permisos: Registra creación, actualización y eliminación de roles y permisos, así como asignaciones a usuarios.
 - Alertas: Envía correos de seguridad automáticamente cuando se cambia información sensible (ej. cambio de email).
 
 ### Visualización de Logs
@@ -193,6 +210,26 @@ DELETE /api/v1/users/{id}
 ```
 *Nota: La eliminación es lógica (Soft Delete). El usuario se marca como inactivo pero los datos persisten.*
 
+Asignar Rol a Usuario:
+```http
+POST /api/v1/users/{id}/roles
+Content-Type: application/json
+
+{
+    "role": "Manager"
+}
+```
+
+Revocar Rol de Usuario:
+```http
+DELETE /api/v1/users/{id}/roles
+Content-Type: application/json
+
+{
+    "role": "Manager"
+}
+```
+
 ---
 
 ## v0.3.0: Sistema RBAC (Roles & Permissions)
@@ -214,21 +251,40 @@ Route::middleware(['auth:sanctum', 'permission:accounting.create_invoice'])->gro
 Route::middleware(['role:Manager|SuperAdmin'])->get('/stats', ...);
 ```
 
+### Gestión de Roles y Permisos (API)
+
+El paquete expone endpoints completos para la gestión dinámica de roles y permisos.
+
+**Roles:**
+- Listar: `GET /api/v1/roles`
+- Crear: `POST /api/v1/roles`
+- Actualizar: `PUT /api/v1/roles/{id}`
+- Eliminar: `DELETE /api/v1/roles/{id}`
+- Sincronizar Permisos: `POST /api/v1/roles/{name}/permissions/sync`
+- Asignar Permiso: `POST /api/v1/roles/{name}/permissions`
+- Revocar Permiso: `DELETE /api/v1/roles/{name}/permissions`
+
+**Permisos:**
+- Listar: `GET /api/v1/permissions`
+- Crear: `POST /api/v1/permissions`
+- Actualizar: `PUT /api/v1/permissions/{id}`
+- Eliminar: `DELETE /api/v1/permissions/{id}`
+
 ### Uso Programático (CQRS / Hexagonal)
 Si necesitas gestionar roles desde tu código (ej. un panel de admin), utiliza los Handlers expuestos para mantener la integridad arquitectónica.
 
 ```php
-use InnoSoft\AuthCore\Application\Roles\CreateRole\CreateRoleCommand;
-use InnoSoft\AuthCore\Application\Roles\CreateRole\CreateRoleHandler;
+use InnoSoft\AuthCore\Application\Roles\Commands\CreateRoleCommand;
+use Illuminate\Support\Facades\Bus;
 
-public function store(Request $request, CreateRoleHandler $handler)
+public function store(Request $request)
 {
     $command = new CreateRoleCommand(
         name: $request->name,
         permissions: $request->permissions // ['users.view', ...]
     );
     
-    $handler->handle($command);
+    Bus::dispatch($command);
     
     return response()->json(['message' => 'Rol creado correctamente']);
 }
@@ -238,8 +294,8 @@ public function store(Request $request, CreateRoleHandler $handler)
 Para listar roles en el frontend sin sobrecarga:
 
 ```php
-use InnoSoft\AuthCore\Application\Roles\Queries\GetRoles\GetRolesQuery;
-use InnoSoft\AuthCore\Application\Roles\Queries\GetRoles\GetRolesHandler;
+use InnoSoft\AuthCore\Application\Roles\Queries\GetRolesQuery;
+use InnoSoft\AuthCore\Application\Roles\Queries\Handlers\GetRolesHandler;
 
 public function index(Request $request, GetRolesHandler $handler)
 {

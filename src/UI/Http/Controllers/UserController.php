@@ -4,9 +4,12 @@ namespace InnoSoft\AuthCore\UI\Http\Controllers;
 
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use InnoSoft\AuthCore\Application\Users\Commands\AssignRoleToUserCommand;
 use InnoSoft\AuthCore\Application\Users\Commands\CreateUserCommand;
 use InnoSoft\AuthCore\Application\Users\Commands\DeleteUserCommand;
+use InnoSoft\AuthCore\Application\Users\Commands\RevokeRoleFromUserCommand;
 use InnoSoft\AuthCore\Application\Users\Commands\UpdateUserCommand;
 use InnoSoft\AuthCore\Application\Users\Queries\GetUserQuery;
 use InnoSoft\AuthCore\Application\Users\Queries\ListUsersQuery;
@@ -27,6 +30,7 @@ class UserController extends Controller
         $this->middleware('permission:users.create')->only(['store']);
         $this->middleware('permission:users.update')->only(['update']);
         $this->middleware('permission:users.delete')->only(['destroy']);
+        $this->middleware('permission:users.assign_role')->only(['assignRole', 'revokeRole']);
     }
 
     /**
@@ -122,5 +126,45 @@ class UserController extends Controller
 
             return $this->successResponse($collection->response()->getData(true));
         }, trans('auth-core::messages.users_retrieved'), 200);
+    }
+
+    public function assignRole(Request $request, string $id): JsonResponse
+    {
+        $request->validate([
+            'role' => 'required|string',
+            'guard_name' => 'string|max:255'
+        ]);
+
+        return $this->safeExecute(function () use ($request, $id) {
+            $command = new AssignRoleToUserCommand(
+                userId: $id,
+                roleName: $request->input('role'),
+                guardName: $request->input('guard_name', 'api')
+            );
+
+            $this->dispatcher->dispatch($command);
+
+            return $this->successResponse(null, 'Role assigned successfully');
+        }, 'Role assigned successfully', 200);
+    }
+
+    public function revokeRole(Request $request, string $id): JsonResponse
+    {
+        $request->validate([
+            'role' => 'required|string',
+            'guard_name' => 'string|max:255'
+        ]);
+
+        return $this->safeExecute(function () use ($request, $id) {
+            $command = new RevokeRoleFromUserCommand(
+                userId: $id,
+                roleName: $request->input('role'),
+                guardName: $request->input('guard_name', 'api')
+            );
+
+            $this->dispatcher->dispatch($command);
+
+            return $this->successResponse(null, 'Role revoked successfully');
+        }, 'Role revoked successfully', 200);
     }
 }

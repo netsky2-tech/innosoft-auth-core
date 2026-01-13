@@ -19,6 +19,7 @@ use InnoSoft\AuthCore\Domain\Auth\Services\PasswordTokenService;
 use InnoSoft\AuthCore\Domain\Auth\Services\TokenIssuer;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorChallengeService;
 use InnoSoft\AuthCore\Domain\Auth\Services\TwoFactorProvider;
+use InnoSoft\AuthCore\Domain\Permissions\PermissionRepository;
 use InnoSoft\AuthCore\Domain\Roles\RoleRepository;
 use InnoSoft\AuthCore\Domain\Shared\DomainEventBus;
 use InnoSoft\AuthCore\Domain\Shared\Services\AuditLogger;
@@ -31,6 +32,7 @@ use InnoSoft\AuthCore\Infrastructure\Auth\SanctumDeviceSessionProvider;
 use InnoSoft\AuthCore\Infrastructure\Auth\SanctumTokenIssuer;
 use InnoSoft\AuthCore\Infrastructure\Bus\Event\LaravelEventBus;
 use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Repositories\EloquentUserRepository;
+use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Repositories\SpatiePermissionRepository;
 use InnoSoft\AuthCore\Infrastructure\Persistence\Eloquent\Repositories\SpatieRoleRepository;
 use InnoSoft\AuthCore\Infrastructure\Services\LaravelAuditLogger;
 use InnoSoft\AuthCore\Infrastructure\Teams\HostTeamMembershipValidator;
@@ -78,6 +80,7 @@ class AuthCoreServiceProvider extends ServiceProvider
         $this->app->bind(TwoFactorChallengeService::class, CacheTwoFactorChallengeService::class);
         $this->app->bind(AuditLogger::class, LaravelAuditLogger::class);
         $this->app->bind(RoleRepository::class, SpatieRoleRepository::class);
+        $this->app->bind(PermissionRepository::class, SpatiePermissionRepository::class);
         $this->app->bind(DeviceSessionProvider::class, SanctumDeviceSessionProvider::class);
         $this->app->bind(TeamMembershipValidator::class, HostTeamMembershipValidator::class);
 
@@ -209,7 +212,7 @@ class AuthCoreServiceProvider extends ServiceProvider
         $baseNamespace = 'InnoSoft\\AuthCore\\Application\\';
 
         // 1. Definimos los módulos que queremos escanear
-        $modules = ['Auth', 'Roles', 'Users', 'Teams', 'Audit'];
+        $modules = ['Auth', 'Roles', 'Users', 'Teams', 'Audit', 'Permissions'];
 
         foreach ($modules as $module) {
             // Rutas a escanear

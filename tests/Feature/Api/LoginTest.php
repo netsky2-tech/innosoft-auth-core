@@ -24,7 +24,7 @@ test('user can login and receive token', function () {
 
     // Assert
     $response->assertOk();
-    expect($response->json('data.access_token'))->not->toBeEmpty()
+    expect($response->json('access_token'))->not->toBeEmpty()
         ->and($response->json('success'))->toBeTrue();
 });
 

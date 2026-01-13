@@ -11,6 +11,8 @@ return [
     'two_factor_required' => 'Two-factor authentication required.',
     'role_not_found' => 'Role :role not found.',
     'role_already_exists' => 'Role :role already exists.',
+    'permission_not_found' => 'Permission :permission not found.',
+    'permission_already_exists' => 'Permission :permission already exists.',
     'password_mismatch' => 'The provided password does not match your current password.',
     'user_not_in_team' => 'User does not belong to this team.',
     'invalid_email_or_token' => 'Invalid email or token.',
